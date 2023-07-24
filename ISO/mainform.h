@@ -115,6 +115,15 @@ namespace ISO {
 			}
 			return false;
 		}
+		// Add this function to update the degree of a vertex in the dictionary
+		void UpdateDegree(Dictionary<int, int>^ degrees, int vertexIndex) {
+			if (degrees->ContainsKey(vertexIndex)) {
+				degrees[vertexIndex]++;
+			}
+			else {
+				degrees->Add(vertexIndex, 1);
+			}
+		}
 		//------------------------------------- 
 	private: System::Windows::Forms::ToolTip^ toolTip1;
 	private: System::Windows::Forms::Button^ undobtn;
@@ -943,84 +952,84 @@ namespace ISO {
 			}
 		}
 		//generate button
-			private: System::Void generatebtn_Click(System::Object^ sender, System::EventArgs^ e) {
-				if (completedot == true && completeline == true) {
-					// Clear existing dots and lines
-					graph1Dots->Clear();
-					graph1Lines->Clear();
-					graph2Dots->Clear();
-					graph2Lines->Clear();
+		private: System::Void generatebtn_Click(System::Object^ sender, System::EventArgs^ e) {
+			if (completedot == true && completeline == true) {
+				// Clear existing dots and lines
+				graph1Dots->Clear();
+				graph1Lines->Clear();
+				graph2Dots->Clear();
+				graph2Lines->Clear();
 
-					// Get the number of vertices from the TextBox control
-					int vertexCount;
-					if (Int32::TryParse(Verticestb->Text, vertexCount)) {
-						// Generate random positions for the dots
-						int dotSpacing = 50;
-						int maxX = isognrt1->Width - dotSpacing;
-						int maxY = isognrt1->Height - dotSpacing;
+				// Get the number of vertices from the TextBox control
+				int vertexCount;
+				if (Int32::TryParse(Verticestb->Text, vertexCount)) {
+					// Generate random positions for the dots
+					int dotSpacing = 50;
+					int maxX = isognrt1->Width - dotSpacing;
+					int maxY = isognrt1->Height - dotSpacing;
 
-						// Create the first graph
-						// Get the adjacency matrix for the first graph
-						array<array<int>^>^ adjacencyMatrix1 = graph->GetAdjacencyMatrix();
+					// Create the first graph
+					// Get the adjacency matrix for the first graph
+					array<array<int>^>^ adjacencyMatrix1 = graph->GetAdjacencyMatrix();
 
-						// Create dots for the first graph
-						for (int i = 0; i < vertexCount; i++) {
-							int x, y;
-							do {
-								x = random->Next(dotSpacing, maxX);
-								y = random->Next(dotSpacing, maxY);
-							} while (HasOverlap(graph1Dots, Point(x, y)));
+					// Create dots for the first graph
+					for (int i = 0; i < vertexCount; i++) {
+						int x, y;
+						do {
+							x = random->Next(dotSpacing, maxX);
+							y = random->Next(dotSpacing, maxY);
+						} while (HasOverlap(graph1Dots, Point(x, y)));
 
-							graph1Dots->Add(Point(x, y));
-						}
-						// Connect the dots with lines based on the adjacency matrix
-						for (int i = 0; i < vertexCount; i++) {
-							for (int j = i + 1; j < vertexCount; j++) {
-								if (adjacencyMatrix1[i][j] == 1) {
-									graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false));
-								}
-							}
-						}
-						// Create dots for the second graph
-						for (int i = 0; i < vertexCount; i++) {
-							int x = random->Next(dotSpacing, maxX);
-							int y = random->Next(dotSpacing, maxY);
-							graph2Dots->Add(Point(x, y));
-						}
-
-						// Generate a random permutation of indices
-						array<int>^ permutation = gcnew array<int>(vertexCount);
-						for (int i = 0; i < vertexCount; i++) {
-							permutation[i] = i;
-						}
-						for (int i = 0; i < vertexCount - 1; i++) {
-							int j = random->Next(i, vertexCount);
-							int temp = permutation[i];
-							permutation[i] = permutation[j];
-							permutation[j] = temp;
-						}
-
-						// Create lines for the second graph based on the permuted indices and adjacency matrix
-						for (int i = 0; i < vertexCount; i++) {
-							for (int j = i + 1; j < vertexCount; j++) {
-								if (adjacencyMatrix1[permutation[i]][permutation[j]] == 1) {
-									Point p1 = graph2Dots[i];
-									Point p2 = graph2Dots[j];
-									graph2Lines->Add(gcnew Line(p1, p2, false));
-								}
-							}
-						}
-
-						// Redraw the PictureBox controls
-						isognrt1->Invalidate();
-						isognrt2->Invalidate();
-
-						undobtn->Enabled = false;
+						graph1Dots->Add(Point(x, y));
 					}
+					// Connect the dots with lines based on the adjacency matrix
+					for (int i = 0; i < vertexCount; i++) {
+						for (int j = i + 1; j < vertexCount; j++) {
+							if (adjacencyMatrix1[i][j] == 1) {
+								graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false));
+							}
+						}
+					}
+					// Create dots for the second graph
+					for (int i = 0; i < vertexCount; i++) {
+						int x = random->Next(dotSpacing, maxX);
+						int y = random->Next(dotSpacing, maxY);
+						graph2Dots->Add(Point(x, y));
+					}
+
+					// Generate a random permutation of indices
+					array<int>^ permutation = gcnew array<int>(vertexCount);
+					for (int i = 0; i < vertexCount; i++) {
+						permutation[i] = i;
+					}
+					for (int i = 0; i < vertexCount - 1; i++) {
+						int j = random->Next(i, vertexCount);
+						int temp = permutation[i];
+						permutation[i] = permutation[j];
+						permutation[j] = temp;
+					}
+
+					// Create lines for the second graph based on the permuted indices and adjacency matrix
+					for (int i = 0; i < vertexCount; i++) {
+						for (int j = i + 1; j < vertexCount; j++) {
+							if (adjacencyMatrix1[permutation[i]][permutation[j]] == 1) {
+								Point p1 = graph2Dots[i];
+								Point p2 = graph2Dots[j];
+								graph2Lines->Add(gcnew Line(p1, p2, false));
+							}
+						}
+					}
+
+					// Redraw the PictureBox controls
+					isognrt1->Invalidate();
+					isognrt2->Invalidate();
+
+					undobtn->Enabled = false;
 				}
-				else
-					MessageBox::Show("Complete the drawing first", "ERROR", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 			}
+			else
+				MessageBox::Show("Complete the drawing first", "ERROR", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+		}
 		// Clear Button 
 		private: System::Void Clearbtn_Click(System::Object^ sender, System::EventArgs^ e) {
 			//clear drawing box
@@ -1058,7 +1067,7 @@ namespace ISO {
 			PBdraw->Invalidate();
 			instructlbl->Text = "";
 			dotnum = 1;
-			
+			graph->ResizeAdjacencyMatrix(0);
 		}
 		//Undo the recent dot 
 		private: System::Void undobtn_Click(System::Object^ sender, System::EventArgs^ e) {
