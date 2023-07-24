@@ -1195,7 +1195,6 @@ namespace ISO {
 			}
 
 		}
-		//gofgiufytfytd
 		// Length limitation and diigit validation for vertex textbox
 		private: System::Void Verticestb_KeyPress(System::Object^ sender, System::Windows::Forms::KeyPressEventArgs^ e) {
 			
