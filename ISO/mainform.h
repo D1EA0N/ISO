@@ -1251,66 +1251,7 @@ namespace ISO {
 				}
 			}
 		}
-		/*/ validation of verticestb while typing 
-		private: System::Void Verticestb_Leave(System::Object^ sender, System::EventArgs^ e) {
-
-			String^ verticesInput = this->Verticestb->Text;
-			int vertices;
-			bool isVerticesValid = Int32::TryParse(verticesInput, vertices);
-
-			if ((verticesInput->Length > 0 && vertices < 4) || Verticestb->Text == "")
-			{
-				MessageBox::Show("Please input vertices greater than or equal to 4.", "INVALID INPUT!", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
-				isDrawing = false;
-				Verticestb->Clear();
-				Verticestb->Focus();
-			}
-		}
-		// validation of edgestb while typing
-		private: System::Void Edgetb_Leave(System::Object^ sender, System::EventArgs^ e) {
-
-			String^ edgesInput = this->Edgetb->Text;
-			if (edgesInput == "" && BackKeyPressed == true) {
-				isDrawing = false;
-				BackKeyPressed = false;
-				return; // If no input, exit the function without showing an error message
-				
-			}
-			int edges;
-			bool isEdgesValid = Int32::TryParse(edgesInput, edges);
-
-			if (edgesInput->Length > 0 && (edges < 4 || !isEdgesValid) || (edgesInput == "" && BackKeyPressed == false)) {
-				MessageBox::Show("Please input edges greater than or equal to 4.", "INVALID INPUT!", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
-				isDrawing = false;
-				Edgetb->Clear();
-				Edgetb->Focus();
-			}
-		}*/
-		private: System::Void timer_move_Tick(System::Object^ sender, System::EventArgs^ e) {
-			/*System::Random^ rand = gcnew System::Random();
-
-			//Get the boundaries of the form
-			int formWidth = this->ClientSize.Width;
-			int formHeight = this->ClientSize.Height;
-
-			// Generate random X and Y coordinates within the form's boundaries
-			int newX = rand->Next(0, formWidth);
-			int newY = rand->Next(0, formHeight);
-
-			// Update the position of the object
-			pictureBox1->Location = System::Drawing::Point(newX, newY);
-			*/
-			angle += 5; // Change the rotation angle as desired
-
-			Refresh();
-		}
-		private: System::Void Verticestb_MouseEnter(System::Object^ sender, System::EventArgs^ e) {
-			toolTip1->SetToolTip(Verticestb, "Please enter 4 or more vertices.");
-		}
-		
-		private: System::Void Edgetb_MouseEnter(System::Object^ sender, System::EventArgs^ e) {
-			toolTip1->SetToolTip(Edgetb, "Please enter  4 or more edge.");
-		}
+		// validation of verticestb while typing 
 		private: System::Void Verticestb_Validating(System::Object^ sender, System::ComponentModel::CancelEventArgs^ e) {
 			String^ verticesInput = this->Verticestb->Text;
 			int vertices;
@@ -1355,6 +1296,31 @@ namespace ISO {
 				e->Cancel = false;
 				errorValidator->SetError(Edgetb, nullptr);
 			}
+		}
+		//tooltip vertices and edges
+		private: System::Void Verticestb_MouseEnter(System::Object^ sender, System::EventArgs^ e) {
+			toolTip1->SetToolTip(Verticestb, "Please enter 4 or more vertices.");
+		}
+		private: System::Void Edgetb_MouseEnter(System::Object^ sender, System::EventArgs^ e) {
+			toolTip1->SetToolTip(Edgetb, "Please enter  4 or more edge.");
+		}
+		private: System::Void timer_move_Tick(System::Object^ sender, System::EventArgs^ e) {
+			/*System::Random^ rand = gcnew System::Random();
+
+			//Get the boundaries of the form
+			int formWidth = this->ClientSize.Width;
+			int formHeight = this->ClientSize.Height;
+
+			// Generate random X and Y coordinates within the form's boundaries
+			int newX = rand->Next(0, formWidth);
+			int newY = rand->Next(0, formHeight);
+
+			// Update the position of the object
+			pictureBox1->Location = System::Drawing::Point(newX, newY);
+			*/
+			angle += 5; // Change the rotation angle as desired
+
+			Refresh();
 		}
 	};
 }
