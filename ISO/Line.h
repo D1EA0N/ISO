@@ -14,10 +14,11 @@ namespace Lines {
         Color color;
         float thickness;
         bool IsCurve;
+        bool IsLoop;
 
     public:
-        Line(Point start, Point end, bool curve)
-            :startPoint(start), endPoint(end), IsCurve(curve)
+        Line(Point start, Point end, bool curve, bool loop)
+            :startPoint(start), endPoint(end), IsCurve(curve), IsLoop(loop)
         {
             color = Color::DarkRed;
             thickness = 2;
@@ -43,6 +44,10 @@ namespace Lines {
              delete pen;
         }
          void Curve(Graphics^ g, int midX, int midY) {
+
+             if (IsLoop == true) {
+                 LoopLine(g, midX, midY);
+             }
              if (IsCurve == false) {
                  Pen^ pen = gcnew Pen(color, thickness);
                  g->DrawLine(pen, startPoint, endPoint);

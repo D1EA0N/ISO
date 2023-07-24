@@ -54,6 +54,7 @@ namespace ISO {
 		bool clickedOnDot = false; // Flag to check if a dot was clicked
 		bool ctrlKeyPressed = false;
 		bool zKeyPressed = false;
+		bool BackKeyPressed = false;
 		int vertcount;
 		int edgecount;
 		int clicknum = 1;
@@ -96,7 +97,8 @@ namespace ISO {
 		};
 		List<DrawObject^>^ objects = gcnew List<DrawObject^>();
 		DrawObject^ dotundo = gcnew DrawObject();
-		DrawObject^ lineundo = gcnew DrawObject();
+	private: System::Windows::Forms::ErrorProvider^ errorValidator;
+		   DrawObject^ lineundo = gcnew DrawObject();
 
 		// Helper function to calculate the distance between two points
 		double Distance(Point p1, Point p2) {
@@ -215,6 +217,7 @@ namespace ISO {
 			this->isognrt1 = (gcnew System::Windows::Forms::PictureBox());
 			this->instructlbl = (gcnew System::Windows::Forms::Label());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
+			this->errorValidator = (gcnew System::Windows::Forms::ErrorProvider(this->components));
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->PBdraw))->BeginInit();
 			this->panel2->SuspendLayout();
 			this->panelSidemenu->SuspendLayout();
@@ -223,6 +226,7 @@ namespace ISO {
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->isognrt2))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->isognrt1))->BeginInit();
 			this->panel1->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->errorValidator))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// label1
@@ -263,8 +267,9 @@ namespace ISO {
 			this->toolTip1->SetToolTip(this->Verticestb, L"\r\n");
 			this->Verticestb->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &mainform::Verticestb_KeyDown);
 			this->Verticestb->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &mainform::Verticestb_KeyPress);
-			this->Verticestb->Leave += gcnew System::EventHandler(this, &mainform::Verticestb_Leave);
+			//this->Verticestb->Leave += gcnew System::EventHandler(this, &mainform::Verticestb_Leave);
 			this->Verticestb->MouseEnter += gcnew System::EventHandler(this, &mainform::Verticestb_MouseEnter);
+			this->Verticestb->Validating += gcnew System::ComponentModel::CancelEventHandler(this, &mainform::Verticestb_Validating);
 			// 
 			// Edgetb
 			// 
@@ -276,8 +281,9 @@ namespace ISO {
 			this->toolTip1->SetToolTip(this->Edgetb, L"\r\n");
 			this->Edgetb->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &mainform::Edgestb_KeyDown);
 			this->Edgetb->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &mainform::Edgetb_KeyPress);
-			this->Edgetb->Leave += gcnew System::EventHandler(this, &mainform::Edgetb_Leave);
+			//this->Edgetb->Leave += gcnew System::EventHandler(this, &mainform::Edgetb_Leave);
 			this->Edgetb->MouseEnter += gcnew System::EventHandler(this, &mainform::Edgetb_MouseEnter);
+			this->Edgetb->Validating += gcnew System::ComponentModel::CancelEventHandler(this, &mainform::Edgetb_Validating);
 			// 
 			// enterbtn
 			// 
@@ -627,6 +633,10 @@ namespace ISO {
 			this->panel1->Size = System::Drawing::Size(1202, 66);
 			this->panel1->TabIndex = 15;
 			// 
+			// errorValidator
+			// 
+			this->errorValidator->ContainerControl = this;
+			// 
 			// mainform
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -662,6 +672,7 @@ namespace ISO {
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->isognrt1))->EndInit();
 			this->panel1->ResumeLayout(false);
 			this->panel1->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->errorValidator))->EndInit();
 			this->ResumeLayout(false);
 
 		}
@@ -750,17 +761,17 @@ namespace ISO {
 									lineundo->Type = 1;
 									if (adjacencyMatrix1[startDotIndex][endDotIndex] == 1 && adjacencyMatrix1[endDotIndex][startDotIndex] == 1)
 									{
-										lines->Add(gcnew Line(startPoint, endPoint, true));
+										lines->Add(gcnew Line(startPoint, endPoint, true, false));
 									}
 									else
-										lines->Add(gcnew Line(startPoint, endPoint, false));
+										lines->Add(gcnew Line(startPoint, endPoint, false, false));
 									objects->Add(lineundo);
 									PBdraw->Invalidate();
 									clicknum = 1;
 									graph->AddEdge(startDotIndex, endDotIndex); // Add the edge to the graph
 									break;
 								}
-								previewLine = gcnew Line(startPoint, startPoint, false);
+								previewLine = gcnew Line(startPoint, startPoint, false, false);
 								PBdraw->Invalidate();
 								break;
 							}
@@ -911,7 +922,12 @@ namespace ISO {
 
 			// Draw the lines for graph 1
 			for each (Line ^ line in graph1Lines) {
-				line->Draw(g);
+				int midX = (line->startPoint.X + line->endPoint.X) / 2;
+				int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
+				if (startDotIndex == endDotIndex) {
+					line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
+				}
+				line->Curve(g, midX, midY);
 			}
 		}
 		// graph 2
@@ -939,7 +955,12 @@ namespace ISO {
 
 			// Draw the lines for graph 2
 			for each (Line ^ line in graph2Lines) {
-				line->Draw(g);
+				int midX = (line->startPoint.X + line->endPoint.X) / 2;
+				int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
+				if (startDotIndex == endDotIndex) {
+					line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
+				}
+				line->Curve(g, midX, midY);
 			}
 		}
 		//generate button
@@ -975,9 +996,12 @@ namespace ISO {
 					}
 					// Connect the dots with lines based on the adjacency matrix
 					for (int i = 0; i < vertexCount; i++) {
-						for (int j = i + 1; j < vertexCount; j++) {
+						for (int j = 0; j < vertexCount; j++) {
 							if (adjacencyMatrix1[i][j] == 1) {
-								graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false));
+								if (i == j)
+									graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false, true));
+								else
+									graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false, false));
 							}
 						}
 					}
@@ -1002,11 +1026,12 @@ namespace ISO {
 
 					// Create lines for the second graph based on the permuted indices and adjacency matrix
 					for (int i = 0; i < vertexCount; i++) {
-						for (int j = i + 1; j < vertexCount; j++) {
+						for (int j = 0; j < vertexCount; j++) {
 							if (adjacencyMatrix1[permutation[i]][permutation[j]] == 1) {
 								Point p1 = graph2Dots[i];
 								Point p2 = graph2Dots[j];
-								graph2Lines->Add(gcnew Line(p1, p2, false));
+								bool isSelfLoop = (i == j) && (adjacencyMatrix1[i][j] == 1); // Check if vertex i is connected to itself
+								graph2Lines->Add(gcnew Line(p1, p2, false, isSelfLoop));
 							}
 						}
 					}
@@ -1149,13 +1174,16 @@ namespace ISO {
 				Edgetb->Focus();
 			}
 		}
-		// Enter function of edge textbox
-		private: System::Void Edgestb_KeyDown(System::Object ^ sender, System::Windows::Forms::KeyEventArgs ^ e) {
+		private: System::Void Edgestb_KeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e) {
 			if (e->KeyCode == Keys::Enter) {
 				enterbtn->PerformClick(); // Call the enterbtn_Click event handler
 			}
+			else if (e->KeyCode == Keys::Back && Edgetb->Text == "") {
+				e->SuppressKeyPress = true; // Prevents the backspace from being entered in the empty textbox
+				BackKeyPressed = true;
+				Verticestb->Focus(); // Focus on the "Verticestb" textbox
+			}
 		}
-		// Enter button function 
 		// Enter button function 
 		private: System::Void enterbtn_Click(System::Object^ sender, System::EventArgs^ e) {
 
@@ -1172,14 +1200,14 @@ namespace ISO {
 				Verticestb->Focus();
 				return;
 			}
-			else if (vertices < 4)
+			else if (vertices < 4 || Verticestb->Text == "")
 			{
 				MessageBox::Show("Please input vertices greater than or equal to 4.", "INVALID INPUT!", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 				isDrawing = false;
 				Verticestb->Text = "";
 				return;
 			}
-			else if (edges < 4) {
+			else if (edges < 4 || Edgetb->Text == "") {
 				MessageBox::Show("Please input edges greater than or equal to 4.", "INVALID INPUT!", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 				isDrawing = false;
 				Edgetb->Text = "";
@@ -1223,7 +1251,7 @@ namespace ISO {
 				}
 			}
 		}
-		// validation of verticestb while typing 
+		/*/ validation of verticestb while typing 
 		private: System::Void Verticestb_Leave(System::Object^ sender, System::EventArgs^ e) {
 
 			String^ verticesInput = this->Verticestb->Text;
@@ -1242,17 +1270,22 @@ namespace ISO {
 		private: System::Void Edgetb_Leave(System::Object^ sender, System::EventArgs^ e) {
 
 			String^ edgesInput = this->Edgetb->Text;
+			if (edgesInput == "" && BackKeyPressed == true) {
+				isDrawing = false;
+				BackKeyPressed = false;
+				return; // If no input, exit the function without showing an error message
+				
+			}
 			int edges;
 			bool isEdgesValid = Int32::TryParse(edgesInput, edges);
 
-			if ((edgesInput->Length > 0 && edges < 4) || Edgetb->Text == "")
-			{
+			if (edgesInput->Length > 0 && (edges < 4 || !isEdgesValid) || (edgesInput == "" && BackKeyPressed == false)) {
 				MessageBox::Show("Please input edges greater than or equal to 4.", "INVALID INPUT!", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 				isDrawing = false;
 				Edgetb->Clear();
 				Edgetb->Focus();
 			}
-		}
+		}*/
 		private: System::Void timer_move_Tick(System::Object^ sender, System::EventArgs^ e) {
 			/*System::Random^ rand = gcnew System::Random();
 
@@ -1277,6 +1310,51 @@ namespace ISO {
 		
 		private: System::Void Edgetb_MouseEnter(System::Object^ sender, System::EventArgs^ e) {
 			toolTip1->SetToolTip(Edgetb, "Please enter  4 or more edge.");
+		}
+		private: System::Void Verticestb_Validating(System::Object^ sender, System::ComponentModel::CancelEventArgs^ e) {
+			String^ verticesInput = this->Verticestb->Text;
+			int vertices;
+			bool isVerticesValid = Int32::TryParse(verticesInput, vertices);
+
+			if ((verticesInput->Length > 0 && vertices < 4) || Verticestb->Text == "")
+			{
+				e->Cancel = true;
+				isDrawing = false;
+				Verticestb->Clear();
+				Verticestb->Focus();
+				errorValidator->SetError(Verticestb, "Please input vertices greater than or equal to 4.");
+				//MessageBox::Show("Please input vertices greater than or equal to 4.", "INVALID INPUT!", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+			}
+			else {
+				e->Cancel = false;
+				errorValidator->SetError(Verticestb, nullptr);
+			}
+		}
+		private: System::Void Edgetb_Validating(System::Object^ sender, System::ComponentModel::CancelEventArgs^ e) {
+			String^ edgesInput = this->Edgetb->Text;
+			if (edgesInput == "" && BackKeyPressed == true) {
+				isDrawing = false;
+				BackKeyPressed = false;
+				e->Cancel = false;
+				errorValidator->SetError(Edgetb, nullptr);
+				return; // If no input, exit the function without showing an error message
+
+			}
+			int edges;
+			bool isEdgesValid = Int32::TryParse(edgesInput, edges);
+
+			if (edgesInput->Length > 0 && (edges < 4 || !isEdgesValid) || (edgesInput == "" && BackKeyPressed == false)) {
+				//MessageBox::Show("Please input edges greater than or equal to 4.", "INVALID INPUT!", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+				isDrawing = false;
+				Edgetb->Clear();
+				Edgetb->Focus();
+				errorValidator->SetError(Edgetb, "Please input edges greater than or equal to 4.");
+
+			}
+			else {
+				e->Cancel = false;
+				errorValidator->SetError(Edgetb, nullptr);
+			}
 		}
 	};
 }
