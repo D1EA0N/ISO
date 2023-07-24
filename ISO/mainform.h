@@ -115,15 +115,6 @@ namespace ISO {
 			}
 			return false;
 		}
-		// Add this function to update the degree of a vertex in the dictionary
-		void UpdateDegree(Dictionary<int, int>^ degrees, int vertexIndex) {
-			if (degrees->ContainsKey(vertexIndex)) {
-				degrees[vertexIndex]++;
-			}
-			else {
-				degrees->Add(vertexIndex, 1);
-			}
-		}
 		//------------------------------------- 
 	private: System::Windows::Forms::ToolTip^ toolTip1;
 	private: System::Windows::Forms::Button^ undobtn;
