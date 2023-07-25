@@ -76,8 +76,8 @@ namespace Graphs {
 
         void AddEdge(int start, int end)
         {
-            adjacencyMatrix[start][end] += 1;
-            adjacencyMatrix[end][start] += 1;
+            adjacencyMatrix[start][end] = 1;
+            adjacencyMatrix[end][start] = 1;
 
             operationHistory->Push(gcnew Edge(start, end));
         }

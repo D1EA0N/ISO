@@ -13,16 +13,24 @@ namespace Lines {
     public:
         Point startPoint;
         Point endPoint;
+        Point controlPoints1; // New member variable for the first control point
+        Point controlPoints2; // New member variable for the second control point
         Color color;
         float thickness;
         bool IsCurve;
 
     public:
-        Line(Point start, Point end, bool curve)
-            :startPoint(start), endPoint(end), IsCurve(curve)
+        Line(Point start, Point end, bool curve, Point cp1, Point cp2)
+            :startPoint(start), endPoint(end), IsCurve(curve), controlPoints1(cp1), controlPoints2(cp2)
         {
             color = Color::DarkRed;
             thickness = 2;
+
+            // Set default control points at a distance of 50 units above the midpoint
+            int midX = (start.X + end.X) / 2;
+            int midY = (start.Y + end.Y) / 2;
+            //controlPoint1 = Point(midX - 50, midY - 50);
+            //controlPoint2 = Point(midX + 50, midY - 50);
         }
         Line() {}
         void Draw(Graphics^ g)
@@ -44,7 +52,7 @@ namespace Lines {
             g->DrawPath(pen, path);
             delete pen;
         }
-        void DrawLineCurve(Graphics^ g, int midX, int midY) {
+        void DrawLineCurve(Graphics^ g, int cp1, int cp2) {
 
             if (IsCurve == false) {
                 Pen^ pen = gcnew Pen(color, thickness);
@@ -54,21 +62,11 @@ namespace Lines {
             else {
                 Pen^ pen = gcnew Pen(color, thickness);
 
-                int midX = (startPoint.X + endPoint.X) / 2;
-                int midY = (startPoint.Y + endPoint.Y) / 2;
+                GraphicsPath^ path = gcnew GraphicsPath();
+                path->StartFigure();
+                path->AddBezier(startPoint, controlPoints1, controlPoints2, endPoint);
 
-                // Calculate the radius of the circle
-                int radius = (int)Math::Round(Math::Sqrt(Math::Pow(startPoint.X - midX, 2) + Math::Pow(startPoint.Y - midY, 2)));
-
-                // Calculate the start and sweep angles for the arc
-                int startAngle = (int)Math::Round(Math::Atan2(startPoint.Y - midY, startPoint.X - midX) * (180 / Math::PI));
-                int endAngle = (int)Math::Round(Math::Atan2(endPoint.Y - midY, endPoint.X - midX) * (180 / Math::PI));
-                int sweepAngle = endAngle - startAngle;
-
-                // Create a bounding rectangle for the circle
-                System::Drawing::Rectangle rect(midX - radius, midY - radius, 2 * radius, 2 * radius);
-
-                g->DrawArc(pen, rect, startAngle, sweepAngle);
+                g->DrawPath(pen, path);
                 delete pen;
             }
         }

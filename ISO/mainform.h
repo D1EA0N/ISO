@@ -43,6 +43,10 @@ namespace ISO {
 		//Points
 		Point startPoint = Point();
 		Point endPoint = Point();
+		int midX = (startPoint.X + endPoint.X) / 2;
+		int midY = (startPoint.Y + endPoint.Y) / 2;
+		Point controlPoint1 = Point(midX - 50, midY - 50);
+		Point controlPoint2 = Point(midX + 50, midY - 50);
 		//variables
 		float angle;
 		bool isDrawing = false;
@@ -733,7 +737,6 @@ namespace ISO {
 			array<array<int>^>^ adjacencyMatrix1 = graph->GetAdjacencyMatrix();
 			array<array<int>^>^ edgeweight = graph->GetAdjacencyMatrix();
 
-
 			if (Int32::TryParse(Edgetb->Text, edgecount)) {
 				if (lines->Count < edgecount) {
 					// Check if the click is on any of the dots
@@ -761,12 +764,17 @@ namespace ISO {
 									endPoint = Point(dotX + dotSize / 2, dotY + dotSize / 2); // Use dot center as end point
 									endDotIndex = dot->index - 1;
 									lineundo->Type = 1;
+									int deltaY = 10; // Adjust this value to increase the arc height
+
+									
 									if (adjacencyMatrix1[startDotIndex][endDotIndex] == 1 && adjacencyMatrix1[endDotIndex][startDotIndex] == 1)
 									{
-										//lines->Add(gcnew Line(startPoint, endPoint, true));
+										lines->Add(gcnew Line(startPoint, endPoint, true, controlPoint1, controlPoint2));
+										controlPoint1.Y -= deltaY;
+										controlPoint2.Y -= deltaY;
 									}
 									else
-									lines->Add(gcnew Line(startPoint, endPoint, false));
+										lines->Add(gcnew Line(startPoint, endPoint, false, controlPoint1, controlPoint2));
 									objects->Add(lineundo);
 									PBdraw->Invalidate();
 									clicknum = 1;
@@ -775,7 +783,7 @@ namespace ISO {
 									edgeLabel = edgeweight[startDotIndex][endDotIndex].ToString();
 									break;
 								}
-								previewLine = gcnew Line(startPoint, startPoint, false);
+								previewLine = gcnew Line(startPoint, endPoint, true, controlPoint1, controlPoint2);
 								PBdraw->Invalidate();
 								break;
 							}
@@ -1022,7 +1030,7 @@ namespace ISO {
 					for (int i = 0; i < vertexCount; i++) {
 						for (int j = 0; j < vertexCount; j++) {
 							if (adjacencyMatrix1[i][j] == 1){
-								graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false));
+								graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false, controlPoint1, controlPoint2));
 							}
 						}
 					}
@@ -1052,7 +1060,7 @@ namespace ISO {
 								Point p1 = graph2Dots[i];
 								Point p2 = graph2Dots[j];
 								bool isSelfLoop = (i == j) && (adjacencyMatrix1[i][j] == 1); // Check if vertex i is connected to itself
-								graph2Lines->Add(gcnew Line(p1, p2, false));
+								graph2Lines->Add(gcnew Line(p1, p2, false, controlPoint1, controlPoint2));
 							}
 						}
 					}
