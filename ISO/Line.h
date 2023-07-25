@@ -1,6 +1,8 @@
 #pragma once
+#include "Graph.h"
 
 using namespace System;
+using namespace Graphs;
 using namespace System::Drawing;
 using namespace System::Collections::Generic;
 using namespace System::Drawing::Drawing2D;
@@ -43,6 +45,7 @@ namespace Lines {
             delete pen;
         }
         void DrawLineCurve(Graphics^ g, int midX, int midY) {
+
             if (IsCurve == false) {
                 Pen^ pen = gcnew Pen(color, thickness);
                 g->DrawLine(pen, startPoint, endPoint);
@@ -69,7 +72,6 @@ namespace Lines {
                 delete pen;
             }
         }
-
         void PreviewDraw(Graphics^ g)
         {
             Pen^ pen = gcnew Pen(color, thickness);

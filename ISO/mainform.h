@@ -60,6 +60,8 @@ namespace ISO {
 		int clicknum = 1;
 		int dotSize = 24;
 		int dotnum;
+		int lineNum;
+		String^ edgeLabel;
 		//graph-class variables
 		Graph^ graph = gcnew Graph(dotnum);
 		int startDotIndex;
@@ -692,7 +694,7 @@ namespace ISO {
 
 		//Dots in Click
 		private: System::Void PBdraw_VertexClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
-			int dotsradius = 50;
+			int dotsradius = 30;
 			bool IsOverLap = false;
 			if (Int32::TryParse(Verticestb->Text, vertcount) && DrawMode == 0) {
 				if (isDrawing == true && dots->Count < vertcount) {
@@ -729,6 +731,8 @@ namespace ISO {
 			int dotsradius = 16;
 			int gridSize = 24;
 			array<array<int>^>^ adjacencyMatrix1 = graph->GetAdjacencyMatrix();
+			array<array<int>^>^ edgeweight = graph->GetAdjacencyMatrix();
+
 
 			if (Int32::TryParse(Edgetb->Text, edgecount)) {
 				if (lines->Count < edgecount) {
@@ -759,14 +763,16 @@ namespace ISO {
 									lineundo->Type = 1;
 									if (adjacencyMatrix1[startDotIndex][endDotIndex] == 1 && adjacencyMatrix1[endDotIndex][startDotIndex] == 1)
 									{
-										lines->Add(gcnew Line(startPoint, endPoint, true));
+										//lines->Add(gcnew Line(startPoint, endPoint, true));
 									}
 									else
-										lines->Add(gcnew Line(startPoint, endPoint, false));
+									lines->Add(gcnew Line(startPoint, endPoint, false));
 									objects->Add(lineundo);
 									PBdraw->Invalidate();
 									clicknum = 1;
 									graph->AddEdge(startDotIndex, endDotIndex); // Add the edge to the graph
+									edgeweight[startDotIndex][endDotIndex] = adjacencyMatrix1[startDotIndex][endDotIndex];
+									edgeLabel = edgeweight[startDotIndex][endDotIndex].ToString();
 									break;
 								}
 								previewLine = gcnew Line(startPoint, startPoint, false);
@@ -836,11 +842,12 @@ namespace ISO {
 		private: System::Void PBdraw_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
 			Graphics^ g = e->Graphics;
 			g->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::AntiAlias;
+
 			if (isDrawing == true) {
 				//Declaration
 				int gridSize = 24; // Adjust the size of each grid cell
 				dotnum = 1;
-				int lineNum = 1;
+				lineNum = 1;
 				Pen^ gridPen = gcnew Pen(Color::FromArgb(0, 0, 0)); // Adjust the color of the grid line
 				List<Line^> prevLines;
 
@@ -865,8 +872,11 @@ namespace ISO {
 					int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
 
 					if (line->startPoint != line->endPoint) {
-						//line->Draw(g);
 						line->DrawLineCurve(g, midX, midY);
+
+						SizeF labelSize = g->MeasureString(edgeLabel, letterFont);
+						PointF labelPosition(midX - labelSize.Width / 2, midY - labelSize.Height / 2);
+						g->DrawString(edgeLabel, letterFont, Brushes::Black, labelPosition);
 					}
 					if (line->startPoint == line->endPoint) {
 						line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
@@ -878,7 +888,6 @@ namespace ISO {
 				//drawing dots
 				for each (PointAndIndex^ p in dots) {
 					// alignment and size
-
 					int cellX = p->position.X / gridSize;
 					int cellY = p->position.Y / gridSize;
 					int dotX = cellX * gridSize + gridSize / 2 - dotSize / 2;
@@ -900,6 +909,7 @@ namespace ISO {
 		private: System::Void isognrt1_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
 			Graphics^ g = e->Graphics;
 			g->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::AntiAlias;
+			int lineNum = 1;
 
 			// Draw the dots and numbers for graph 1
 			for (int i = 0; i < graph1Dots->Count; i++) {
@@ -925,17 +935,25 @@ namespace ISO {
 				int midX = (line->startPoint.X + line->endPoint.X) / 2;
 				int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
 
+				if (line->startPoint != line->endPoint) {
+					line->DrawLineCurve(g, midX, midY);
+				}
 				if (line->startPoint == line->endPoint) {
 					line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
 				}
-				else
-					line->DrawLineCurve(g, midX, midY);
+				// Draw the line number beside the line
+				String^ lineLabel = lineNum.ToString();
+				SizeF labelSize = g->MeasureString(lineLabel, letterFont);
+				PointF labelPosition(midX - labelSize.Width / 2, midY - labelSize.Height / 2);
+				g->DrawString(lineLabel, letterFont, Brushes::Black, labelPosition);
 			}
-		}
 		// graph 2
+		}
 		private: System::Void isognrt2_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
 			Graphics^ g = e->Graphics;
 			g->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::AntiAlias;
+			int lineNum = 1;
+			array<array<int>^>^ adjacencyMatrix1 = graph->GetAdjacencyMatrix();
 
 			// Draw the dots and numbers for graph 2
 			for (int i = 0; i < graph2Dots->Count; i++) {
@@ -948,24 +966,25 @@ namespace ISO {
 				g->FillEllipse(Brushes::Blue, dotX, dotY, dotSize, dotSize);
 				g->DrawEllipse(Pens::Black, dotX, dotY, dotSize, dotSize);
 
+
 				// Draw the number in the middle of the dot
 				String^ dotNumber = (i + 1).ToString();
 				SizeF textSize = g->MeasureString(dotNumber, letterFont);
 				PointF textLocation = PointF(p.X - textSize.Width / 2, p.Y - textSize.Height / 2);
 				g->DrawString(dotNumber, letterFont, Brushes::Black, textLocation);
 			}
-
 			// Draw the lines for graph 2
 			for each (Line ^ line in graph2Lines) {
 				// Calculate the percentage of the distance to determine control point positions
 				int midX = (line->startPoint.X + line->endPoint.X) / 2;
 				int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
 
+				if (line->startPoint != line->endPoint) {
+					line->DrawLineCurve(g, midX, midY);
+				}
 				if (line->startPoint == line->endPoint) {
 					line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
 				}
-				else
-					line->DrawLineCurve(g, midX, midY);
 			}
 		}
 		//generate button
@@ -1002,11 +1021,8 @@ namespace ISO {
 					// Connect the dots with lines based on the adjacency matrix
 					for (int i = 0; i < vertexCount; i++) {
 						for (int j = 0; j < vertexCount; j++) {
-							if (adjacencyMatrix1[i][j] == 1) {
-								if (i == j)
-									graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false));
-								else
-									graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false));
+							if (adjacencyMatrix1[i][j] == 1){
+								graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false));
 							}
 						}
 					}
