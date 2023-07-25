@@ -267,7 +267,6 @@ namespace ISO {
 			this->toolTip1->SetToolTip(this->Verticestb, L"\r\n");
 			this->Verticestb->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &mainform::Verticestb_KeyDown);
 			this->Verticestb->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &mainform::Verticestb_KeyPress);
-			//this->Verticestb->Leave += gcnew System::EventHandler(this, &mainform::Verticestb_Leave);
 			this->Verticestb->MouseEnter += gcnew System::EventHandler(this, &mainform::Verticestb_MouseEnter);
 			this->Verticestb->Validating += gcnew System::ComponentModel::CancelEventHandler(this, &mainform::Verticestb_Validating);
 			// 
@@ -281,7 +280,6 @@ namespace ISO {
 			this->toolTip1->SetToolTip(this->Edgetb, L"\r\n");
 			this->Edgetb->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &mainform::Edgestb_KeyDown);
 			this->Edgetb->KeyPress += gcnew System::Windows::Forms::KeyPressEventHandler(this, &mainform::Edgetb_KeyPress);
-			//this->Edgetb->Leave += gcnew System::EventHandler(this, &mainform::Edgetb_Leave);
 			this->Edgetb->MouseEnter += gcnew System::EventHandler(this, &mainform::Edgetb_MouseEnter);
 			this->Edgetb->Validating += gcnew System::ComponentModel::CancelEventHandler(this, &mainform::Edgetb_Validating);
 			// 
@@ -316,7 +314,7 @@ namespace ISO {
 			this->PBdraw->BackColor = System::Drawing::Color::LightSlateGray;
 			this->PBdraw->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->PBdraw->Cursor = System::Windows::Forms::Cursors::Cross;
-			this->PBdraw->Location = System::Drawing::Point(151, 160);
+			this->PBdraw->Location = System::Drawing::Point(167, 160);
 			this->PBdraw->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->PBdraw->Name = L"PBdraw";
 			this->PBdraw->Size = System::Drawing::Size(502, 437);
@@ -525,7 +523,7 @@ namespace ISO {
 			this->panelSidemenu->Dock = System::Windows::Forms::DockStyle::Left;
 			this->panelSidemenu->Location = System::Drawing::Point(0, 88);
 			this->panelSidemenu->Name = L"panelSidemenu";
-			this->panelSidemenu->Size = System::Drawing::Size(147, 579);
+			this->panelSidemenu->Size = System::Drawing::Size(158, 579);
 			this->panelSidemenu->TabIndex = 13;
 			// 
 			// panelButtons
@@ -539,7 +537,7 @@ namespace ISO {
 			this->panelButtons->Dock = System::Windows::Forms::DockStyle::Top;
 			this->panelButtons->Location = System::Drawing::Point(0, 100);
 			this->panelButtons->Name = L"panelButtons";
-			this->panelButtons->Size = System::Drawing::Size(147, 367);
+			this->panelButtons->Size = System::Drawing::Size(158, 367);
 			this->panelButtons->TabIndex = 14;
 			// 
 			// panelInput
@@ -552,7 +550,7 @@ namespace ISO {
 			this->panelInput->Dock = System::Windows::Forms::DockStyle::Top;
 			this->panelInput->Location = System::Drawing::Point(0, 0);
 			this->panelInput->Name = L"panelInput";
-			this->panelInput->Size = System::Drawing::Size(147, 100);
+			this->panelInput->Size = System::Drawing::Size(158, 100);
 			this->panelInput->TabIndex = 14;
 			// 
 			// adbtb
@@ -599,7 +597,7 @@ namespace ISO {
 			this->isognrt1->BackColor = System::Drawing::Color::LightSlateGray;
 			this->isognrt1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->isognrt1->Cursor = System::Windows::Forms::Cursors::Cross;
-			this->isognrt1->Location = System::Drawing::Point(677, 157);
+			this->isognrt1->Location = System::Drawing::Point(686, 160);
 			this->isognrt1->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->isognrt1->Name = L"isognrt1";
 			this->isognrt1->Size = System::Drawing::Size(314, 268);
@@ -628,9 +626,9 @@ namespace ISO {
 			this->panel1->Controls->Add(this->instructlbl);
 			this->panel1->Controls->Add(this->adbtb);
 			this->panel1->Dock = System::Windows::Forms::DockStyle::Top;
-			this->panel1->Location = System::Drawing::Point(147, 88);
+			this->panel1->Location = System::Drawing::Point(158, 88);
 			this->panel1->Name = L"panel1";
-			this->panel1->Size = System::Drawing::Size(1202, 66);
+			this->panel1->Size = System::Drawing::Size(1191, 66);
 			this->panel1->TabIndex = 15;
 			// 
 			// errorValidator
@@ -761,17 +759,17 @@ namespace ISO {
 									lineundo->Type = 1;
 									if (adjacencyMatrix1[startDotIndex][endDotIndex] == 1 && adjacencyMatrix1[endDotIndex][startDotIndex] == 1)
 									{
-										lines->Add(gcnew Line(startPoint, endPoint, true, false));
+										lines->Add(gcnew Line(startPoint, endPoint, true));
 									}
 									else
-										lines->Add(gcnew Line(startPoint, endPoint, false, false));
+										lines->Add(gcnew Line(startPoint, endPoint, false));
 									objects->Add(lineundo);
 									PBdraw->Invalidate();
 									clicknum = 1;
 									graph->AddEdge(startDotIndex, endDotIndex); // Add the edge to the graph
 									break;
 								}
-								previewLine = gcnew Line(startPoint, startPoint, false, false);
+								previewLine = gcnew Line(startPoint, startPoint, false);
 								PBdraw->Invalidate();
 								break;
 							}
@@ -862,12 +860,13 @@ namespace ISO {
 				}
 				for each (Line ^ line in lines)
 				{
+					// Calculate the percentage of the distance to determine control point positions
 					int midX = (line->startPoint.X + line->endPoint.X) / 2;
 					int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
 
 					if (line->startPoint != line->endPoint) {
 						//line->Draw(g);
-						line->Curve(g, midX, midY);
+						line->DrawLineCurve(g, midX, midY);
 					}
 					if (line->startPoint == line->endPoint) {
 						line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
@@ -922,12 +921,15 @@ namespace ISO {
 
 			// Draw the lines for graph 1
 			for each (Line ^ line in graph1Lines) {
+				// Calculate the percentage of the distance to determine control point positions
 				int midX = (line->startPoint.X + line->endPoint.X) / 2;
 				int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
-				if (startDotIndex == endDotIndex) {
+
+				if (line->startPoint == line->endPoint) {
 					line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
 				}
-				line->Curve(g, midX, midY);
+				else
+					line->DrawLineCurve(g, midX, midY);
 			}
 		}
 		// graph 2
@@ -955,12 +957,15 @@ namespace ISO {
 
 			// Draw the lines for graph 2
 			for each (Line ^ line in graph2Lines) {
+				// Calculate the percentage of the distance to determine control point positions
 				int midX = (line->startPoint.X + line->endPoint.X) / 2;
 				int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
-				if (startDotIndex == endDotIndex) {
+
+				if (line->startPoint == line->endPoint) {
 					line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
 				}
-				line->Curve(g, midX, midY);
+				else
+					line->DrawLineCurve(g, midX, midY);
 			}
 		}
 		//generate button
@@ -999,9 +1004,9 @@ namespace ISO {
 						for (int j = 0; j < vertexCount; j++) {
 							if (adjacencyMatrix1[i][j] == 1) {
 								if (i == j)
-									graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false, true));
+									graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false));
 								else
-									graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false, false));
+									graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false));
 							}
 						}
 					}
@@ -1031,7 +1036,7 @@ namespace ISO {
 								Point p1 = graph2Dots[i];
 								Point p2 = graph2Dots[j];
 								bool isSelfLoop = (i == j) && (adjacencyMatrix1[i][j] == 1); // Check if vertex i is connected to itself
-								graph2Lines->Add(gcnew Line(p1, p2, false, isSelfLoop));
+								graph2Lines->Add(gcnew Line(p1, p2, false));
 							}
 						}
 					}
@@ -1259,7 +1264,6 @@ namespace ISO {
 
 			if ((verticesInput->Length > 0 && vertices < 4) || Verticestb->Text == "")
 			{
-				e->Cancel = true;
 				isDrawing = false;
 				Verticestb->Clear();
 				Verticestb->Focus();
@@ -1267,7 +1271,6 @@ namespace ISO {
 				//MessageBox::Show("Please input vertices greater than or equal to 4.", "INVALID INPUT!", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
 			}
 			else {
-				e->Cancel = false;
 				errorValidator->SetError(Verticestb, nullptr);
 			}
 		}
@@ -1293,7 +1296,6 @@ namespace ISO {
 
 			}
 			else {
-				e->Cancel = false;
 				errorValidator->SetError(Edgetb, nullptr);
 			}
 		}
