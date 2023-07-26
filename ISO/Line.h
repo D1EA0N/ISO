@@ -15,6 +15,8 @@ namespace Lines {
         Point endPoint;
         Point controlPoints1; // New member variable for the first control point
         Point controlPoints2; // New member variable for the second control point
+        Point controlPoint1; // New member variable for the first control point
+        Point controlPoint2; // New member variable for the second control point
         Color color;
         float thickness;
         bool IsCurve;
@@ -29,8 +31,8 @@ namespace Lines {
             // Set default control points at a distance of 50 units above the midpoint
             int midX = (start.X + end.X) / 2;
             int midY = (start.Y + end.Y) / 2;
-            //controlPoint1 = Point(midX - 50, midY - 50);
-            //controlPoint2 = Point(midX + 50, midY - 50);
+            controlPoint1 = Point(midX - 50, midY - 50);
+            controlPoint2 = Point(midX + 50, midY - 50);
         }
         Line() {}
         void Draw(Graphics^ g)
@@ -42,8 +44,6 @@ namespace Lines {
         void LoopLine(Graphics^ g, int midX, int midY) {
             Pen^ pen = gcnew Pen(color, thickness);
             // Define control points for the Bezier curve
-            Point controlPoint1(midX - 50, midY - 50); // Adjust these values to control the curve's shape
-            Point controlPoint2(midX + 50, midY - 50); // Adjust these values to control the curve's shape
 
             GraphicsPath^ path = gcnew GraphicsPath();
             path->StartFigure();
@@ -60,6 +60,7 @@ namespace Lines {
                 delete pen;
             }
             else {
+
                 Pen^ pen = gcnew Pen(color, thickness);
 
                 GraphicsPath^ path = gcnew GraphicsPath();

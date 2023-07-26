@@ -11,6 +11,7 @@ namespace Graphs {
     private:
         int numVertices;
         array<array<int>^>^ adjacencyMatrix;
+        array<array<int>^>^ lineCount;
 
         ref class Edge
         {
@@ -31,6 +32,7 @@ namespace Graphs {
         {
             numVertices = vertices;
             InitializeAdjacencyMatrix();
+            InitializeLineCount();
             operationHistory = gcnew Stack<Edge^>();
         }
         void InitializeAdjacencyMatrix()
@@ -45,32 +47,49 @@ namespace Graphs {
                 }
             }
         }
-
+        void InitializeLineCount()
+        {
+            lineCount = gcnew array<array<int>^>(numVertices);
+            for (int i = 0; i < numVertices; i++)
+            {
+                lineCount[i] = gcnew array<int>(numVertices);
+                for (int j = 0; j < numVertices; j++)
+                {
+                   lineCount[i][j] = 0; // Initialize all elements to 0
+                }
+            }
+        }
         //Retaining the data
         void ResizeAdjacencyMatrix(int newVertices)
         {
             // Create a temporary matrix to hold the existing data
             array<array<int>^>^ tempMatrix = gcnew array<array<int>^>(newVertices);
+            array<array<int>^>^ tempLineCount = gcnew array<array<int>^>(newVertices);
+
             for (int i = 0; i < newVertices; i++)
             {
                 tempMatrix[i] = gcnew array<int>(newVertices);
+                tempLineCount[i] = gcnew array<int>(newVertices); // Initialize the temporary lineCount array
                 for (int j = 0; j < newVertices; j++)
                 {
                     if (i < numVertices && j < numVertices)
                     {
                         // Copy existing data to the temporary matrix
                         tempMatrix[i][j] = adjacencyMatrix[i][j];
+                        tempLineCount[i][j] = lineCount[i][j];
                     }
                     else
                     {
                         // Fill new rows and columns with zeros
                         tempMatrix[i][j] = 0;
+                        tempLineCount[i][j] = 0;
                     }
                 }
             }
 
             // Replace the adjacency matrix with the resized matrix
             adjacencyMatrix = tempMatrix;
+            lineCount = tempLineCount;
             numVertices = newVertices;
         }
 
@@ -80,6 +99,11 @@ namespace Graphs {
             adjacencyMatrix[end][start] = 1;
 
             operationHistory->Push(gcnew Edge(start, end));
+        }
+        void AddCount(int start, int end)
+        {
+            lineCount[start][end] += 1;
+            lineCount[end][start] += 1;
         }
         void Undo()
         {
@@ -135,6 +159,10 @@ namespace Graphs {
         array<array<int>^>^ GetAdjacencyMatrix()
         {
             return adjacencyMatrix;
+        }
+        array<array<int>^>^ GetLineCount()
+        {
+            return lineCount;
         }
     };
 }

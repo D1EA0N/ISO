@@ -43,10 +43,17 @@ namespace ISO {
 		//Points
 		Point startPoint = Point();
 		Point endPoint = Point();
+		// Calculate the control points to create the letter "C" shaped curve
+		int controlPointOffsetY = 30; // Adjust this value to control the curve's highest point
+		int controlPointOffsetX = 15; // Adjust this value to control the curve's width
 		int midX = (startPoint.X + endPoint.X) / 2;
 		int midY = (startPoint.Y + endPoint.Y) / 2;
-		Point controlPoint1 = Point(midX - 50, midY - 50);
-		Point controlPoint2 = Point(midX + 50, midY - 50);
+		// Calculate the control points to create the letter "C" shaped curve
+		// Calculate the control points for the Bezier curve
+		Point controlPoint1 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
+		Point controlPoint2 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
+		Point controlPointloop1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
+		Point controlPointloop2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
 		//variables
 		float angle;
 		bool isDrawing = false;
@@ -64,7 +71,7 @@ namespace ISO {
 		int clicknum = 1;
 		int dotSize = 24;
 		int dotnum;
-		int lineNum;
+		int lineNum;;
 		String^ edgeLabel;
 		//graph-class variables
 		Graph^ graph = gcnew Graph(dotnum);
@@ -361,6 +368,8 @@ namespace ISO {
 			this->toolTip1->SetToolTip(this->undobtn, L"Click to undo the recent vertex/edge");
 			this->undobtn->UseVisualStyleBackColor = false;
 			this->undobtn->Click += gcnew System::EventHandler(this, &mainform::undobtn_Click);
+			this->undobtn->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &mainform::mainform_KeyDown);
+			this->undobtn->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &mainform::mainform_KeyUp);
 			// 
 			// Clearbtn
 			// 
@@ -735,7 +744,6 @@ namespace ISO {
 			int dotsradius = 16;
 			int gridSize = 24;
 			array<array<int>^>^ adjacencyMatrix1 = graph->GetAdjacencyMatrix();
-			array<array<int>^>^ edgeweight = graph->GetAdjacencyMatrix();
 
 			if (Int32::TryParse(Edgetb->Text, edgecount)) {
 				if (lines->Count < edgecount) {
@@ -769,9 +777,16 @@ namespace ISO {
 									
 									if (adjacencyMatrix1[startDotIndex][endDotIndex] == 1 && adjacencyMatrix1[endDotIndex][startDotIndex] == 1)
 									{
-										lines->Add(gcnew Line(startPoint, endPoint, true, controlPoint1, controlPoint2));
-										controlPoint1.Y -= deltaY;
-										controlPoint2.Y -= deltaY;
+										if (startDotIndex == endDotIndex) {
+											lines->Add(gcnew Line(startPoint, endPoint, true, controlPoint1, controlPoint2));
+											controlPoint1.X -= deltaY;
+											controlPoint2.Y -= deltaY;
+										}
+										else {
+											lines->Add(gcnew Line(startPoint, endPoint, true, controlPoint1, controlPoint2));
+											controlPoint1.X += deltaY;
+											controlPoint2.Y += deltaY;
+										}
 									}
 									else
 										lines->Add(gcnew Line(startPoint, endPoint, false, controlPoint1, controlPoint2));
@@ -779,8 +794,7 @@ namespace ISO {
 									PBdraw->Invalidate();
 									clicknum = 1;
 									graph->AddEdge(startDotIndex, endDotIndex); // Add the edge to the graph
-									edgeweight[startDotIndex][endDotIndex] = adjacencyMatrix1[startDotIndex][endDotIndex];
-									edgeLabel = edgeweight[startDotIndex][endDotIndex].ToString();
+									graph->AddCount(startDotIndex, endDotIndex);
 									break;
 								}
 								previewLine = gcnew Line(startPoint, endPoint, true, controlPoint1, controlPoint2);
@@ -809,32 +823,61 @@ namespace ISO {
 		private: System::Void adbtb_Click(System::Object^ sender, System::EventArgs^ e) {
 			array<array<int>^>^ adjacencyMatrix = graph->GetAdjacencyMatrix();
 			int vertexCount = adjacencyMatrix->GetLength(0);
-		
+
 			// Create a string representation of the adjacency matrix with vertex labels
 			String^ matrixString = "Adjacency Matrix:\n";
-		
+
 			// Add column labels (vertex indices)
 			matrixString += "   ";
 			for (int i = 0; i < vertexCount; i++) {
 				matrixString += i + 1 + " ";  // Vertex indices start from 1
 			}
 			matrixString += "\n";
-		
+
 			// Add row labels and matrix values
 			for (int i = 0; i < vertexCount; i++) {
 				// Add row label (vertex index)
 				matrixString += i + 1 + " ";
-		
+
 				// Add matrix values
 				for (int j = 0; j < vertexCount; j++) {
 					matrixString += adjacencyMatrix[i][j] + ",";
 				}
 				matrixString += "\n";
 			}
-		
+
 			// Display the adjacency matrix in a message box
 			MessageBox::Show(matrixString, "Adjacency Matrix", MessageBoxButtons::OK, MessageBoxIcon::Information);
+
+			array<array<int>^>^ lineCount = graph->GetLineCount();
+			int vertexCount1 = lineCount->GetLength(0);
+
+			// Create a string representation of the lineCount array with vertex labels
+			String^ lineString = "Line Count Matrix:\n";
+
+			// Add column labels (vertex indices)
+			lineString += "   ";
+			for (int i = 0; i < vertexCount1; i++) {
+				lineString += i + 1 + " ";  // Vertex indices start from 1
+			}
+			lineString += "\n";
+
+			// Add row labels and matrix values
+			for (int i = 0; i < vertexCount1; i++) {
+				// Add row label (vertex index)
+				lineString += i + 1 + " ";
+
+				// Add matrix values
+				for (int j = 0; j < vertexCount1; j++) {
+					lineString += lineCount[i][j] + ",";
+				}
+				lineString += "\n";
+			}
+
+			// Display the line count matrix in a message box
+			MessageBox::Show(lineString, "Line Count Matrix", MessageBoxButtons::OK, MessageBoxIcon::Information);
 		}
+
 		//Preview Line
 		private: System::Void PBdraw_MouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
 			if (clicknum == 1)
@@ -1090,6 +1133,8 @@ namespace ISO {
 			//clear textbox
 			Verticestb->Text = "";
 			Edgetb->Text = "";
+			Verticestb->Enabled = true;
+			Edgetb->Enabled = true;
 			//making the setting default
 			DrawMode = 0;
 			showDot = true;
@@ -1113,20 +1158,33 @@ namespace ISO {
 			instructlbl->Text = "";
 			dotnum = 1;
 			graph->ResizeAdjacencyMatrix(0);
+			Point startPoint = Point();
+			Point endPoint = Point();
+			// Calculate the control points to create the letter "C" shaped curve
+			int controlPointOffsetY = 30; // Adjust this value to control the curve's highest point
+			int controlPointOffsetX = 15; // Adjust this value to control the curve's width
+			int midX = (startPoint.X + endPoint.X) / 2;
+			int midY = (startPoint.Y + endPoint.Y) / 2;
+			// Calculate the control points to create the letter "C" shaped curve
+			// Calculate the control points for the Bezier curve
+			Point controlPoint1 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
+			Point controlPoint2 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
+			//Point controlPoint1 = Point(midX - 30, midY - 50);
+			//Point controlPoint2 = Point(midX + 50, midY - 30);
 		}
 		//Undo the recent dot 
 		private: System::Void undobtn_Click(System::Object^ sender, System::EventArgs^ e) {
 			undobtn->Focus();
 			addvertexbtn->BackColor = Color::Transparent;
 			connectbtn->BackColor = Color::Transparent;
+			array<array<int>^>^ linecount = graph->GetLineCount();
 
 			if (objects->Count > 0) {
 				int obj = objects[objects->Count - 1]->Type;
 				
 				if (obj == 0) {
 					if (dots->Count > 0) {
-						dots->RemoveAt(dots->Count - 1);
-						graph->RemoveDisconnectedVertices();
+						dots->RemoveAt(dots->Count - 1);					
 						PBdraw->Invalidate();
 						showline = true;
 						showDot = true;
@@ -1134,11 +1192,16 @@ namespace ISO {
 				}
 				else if (obj == 1) {
 					if (lines->Count > 0) {
+						previewLine = gcnew Line();
 						lines->RemoveAt(lines->Count - 1);	
-						graph->Undo();
 						PBdraw->Invalidate();
 						showDot = true;
 						showline = true;
+					}
+					if (linecount[startDotIndex][endDotIndex] < 2 && linecount[endDotIndex][startDotIndex] < 2)
+					{
+						graph->RemoveDisconnectedVertices();
+						graph->Undo();
 					}
 				}
 				objects->RemoveAt(objects->Count - 1); // Update the objects collection
@@ -1184,6 +1247,8 @@ namespace ISO {
 			instructlbl->Text = "Click on the picturebox to draw the vertices";
 			addvertexbtn->BackColor = Color::LightCyan;
 			connectbtn->BackColor = Color::Transparent;
+			Verticestb->Enabled = false;
+			Edgetb->Enabled = false;
 		}
 		//draw edge
 		private: System::Void connectbtn_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -1191,6 +1256,8 @@ namespace ISO {
 			DrawMode = 1;
 			connectbtn->BackColor = Color::LightCyan;
 			addvertexbtn->BackColor = Color::Transparent;
+			Verticestb->Enabled = false;
+			Edgetb->Enabled = false;
 		}
 		//Show grid
 		private: System::Void CBgrid_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
