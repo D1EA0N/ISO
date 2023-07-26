@@ -46,12 +46,12 @@ namespace Lines {
 
             GraphicsPath^ path = gcnew GraphicsPath();
             path->StartFigure();
-            path->AddBezier(startPoint, controlPoint1, controlPoint2, endPoint);
+            path->AddBezier(startPoint, controlPoints1, controlPoints2, endPoint);
 
             g->DrawPath(pen, path);
             delete pen;
         }
-        void DrawLineCurve(Graphics^ g, int cp1, int cp2) {
+        void DrawLineCurve(Graphics^ g, int cp1, int cp2, Color color, float thickness) {
 
             if (IsCurve == false) {
                 Pen^ pen = gcnew Pen(color, thickness);

@@ -33,27 +33,30 @@ namespace ISO {
 		Line^ previewLine;
 		Line^ line;
 		//lists
+		Dictionary<String^, int>^ vertexDegrees = gcnew Dictionary<String^, int>();
 		List<Line^>^ lines = gcnew List<Line^>();
 		List<Point>^ graph1Dots = gcnew List<Point>();  // Dots for graph 1
 		List<Point>^ graph2Dots = gcnew List<Point>();  // Dots for graph 2
 		List<Line^>^ graph1Lines = gcnew List<Line^>();  // Lines for graph 1
 		List<Line^>^ graph2Lines = gcnew List<Line^>();  // Lines for graph 2
 		List<Line^>^ linesList = gcnew List<Line^>();
+		List<int>^ vertexEdgeCounts = gcnew List<int>();
 		Random^ random = gcnew Random();  // Random number generator
 		//Points
 		Point startPoint = Point();
 		Point endPoint = Point();
+		Point controlPointloop1;
+		Point controlPointloop2;
+		Point controlPointloops1;
+		Point controlPointloops2;
 		// Calculate the control points to create the letter "C" shaped curve
 		int controlPointOffsetY = 30; // Adjust this value to control the curve's highest point
 		int controlPointOffsetX = 15; // Adjust this value to control the curve's width
 		int midX = (startPoint.X + endPoint.X) / 2;
 		int midY = (startPoint.Y + endPoint.Y) / 2;
-		// Calculate the control points to create the letter "C" shaped curve
-		// Calculate the control points for the Bezier curve
 		Point controlPoint1 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
 		Point controlPoint2 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
-		Point controlPointloop1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
-		Point controlPointloop2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
+		array<int>^ degrees = gcnew array<int>(edgecount);
 		//variables
 		float angle;
 		bool isDrawing = false;
@@ -109,7 +112,8 @@ namespace ISO {
 		};
 		List<DrawObject^>^ objects = gcnew List<DrawObject^>();
 		DrawObject^ dotundo = gcnew DrawObject();
-	private: System::Windows::Forms::ErrorProvider^ errorValidator;
+
+
 		   DrawObject^ lineundo = gcnew DrawObject();
 
 		// Helper function to calculate the distance between two points
@@ -130,11 +134,12 @@ namespace ISO {
 			return false;
 		}
 		//------------------------------------- 
+	private: System::Windows::Forms::ErrorProvider^ errorValidator;
 	private: System::Windows::Forms::ToolTip^ toolTip1;
 	private: System::Windows::Forms::Button^ undobtn;
-	private: System::Windows::Forms::Button^ exitBtn;
+
 	private: System::Windows::Forms::CheckBox^ CBgrid;
-	private: System::Windows::Forms::Button^ hideBtn;
+
 	private: System::Windows::Forms::Button^ generatebtn;
 
 	private: System::Windows::Forms::Timer^ timer_move;
@@ -215,9 +220,7 @@ namespace ISO {
 			this->Clearbtn = (gcnew System::Windows::Forms::Button());
 			this->addvertexbtn = (gcnew System::Windows::Forms::Button());
 			this->connectbtn = (gcnew System::Windows::Forms::Button());
-			this->exitBtn = (gcnew System::Windows::Forms::Button());
 			this->CBgrid = (gcnew System::Windows::Forms::CheckBox());
-			this->hideBtn = (gcnew System::Windows::Forms::Button());
 			this->generatebtn = (gcnew System::Windows::Forms::Button());
 			this->timer_move = (gcnew System::Windows::Forms::Timer(this->components));
 			this->panel2 = (gcnew System::Windows::Forms::Panel());
@@ -231,7 +234,6 @@ namespace ISO {
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
 			this->errorValidator = (gcnew System::Windows::Forms::ErrorProvider(this->components));
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->PBdraw))->BeginInit();
-			this->panel2->SuspendLayout();
 			this->panelSidemenu->SuspendLayout();
 			this->panelButtons->SuspendLayout();
 			this->panelInput->SuspendLayout();
@@ -454,20 +456,6 @@ namespace ISO {
 			this->connectbtn->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &mainform::mainform_KeyDown);
 			this->connectbtn->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &mainform::mainform_KeyUp);
 			// 
-			// exitBtn
-			// 
-			this->exitBtn->BackColor = System::Drawing::Color::Transparent;
-			this->exitBtn->FlatAppearance->BorderSize = 0;
-			this->exitBtn->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-			this->exitBtn->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"exitBtn.Image")));
-			this->exitBtn->Location = System::Drawing::Point(1315, 0);
-			this->exitBtn->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
-			this->exitBtn->Name = L"exitBtn";
-			this->exitBtn->Size = System::Drawing::Size(34, 31);
-			this->exitBtn->TabIndex = 6;
-			this->exitBtn->UseVisualStyleBackColor = false;
-			this->exitBtn->Click += gcnew System::EventHandler(this, &mainform::exitBtn_Click);
-			// 
 			// CBgrid
 			// 
 			this->CBgrid->AutoSize = true;
@@ -482,21 +470,6 @@ namespace ISO {
 			this->CBgrid->Text = L"Show Grid";
 			this->CBgrid->UseVisualStyleBackColor = false;
 			this->CBgrid->CheckedChanged += gcnew System::EventHandler(this, &mainform::CBgrid_CheckedChanged);
-			// 
-			// hideBtn
-			// 
-			this->hideBtn->BackColor = System::Drawing::Color::Transparent;
-			this->hideBtn->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"hideBtn.BackgroundImage")));
-			this->hideBtn->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Center;
-			this->hideBtn->FlatAppearance->BorderSize = 0;
-			this->hideBtn->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
-			this->hideBtn->Location = System::Drawing::Point(1282, 0);
-			this->hideBtn->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
-			this->hideBtn->Name = L"hideBtn";
-			this->hideBtn->Size = System::Drawing::Size(34, 31);
-			this->hideBtn->TabIndex = 9;
-			this->hideBtn->UseVisualStyleBackColor = false;
-			this->hideBtn->Click += gcnew System::EventHandler(this, &mainform::hideBtn_Click);
 			// 
 			// generatebtn
 			// 
@@ -520,12 +493,10 @@ namespace ISO {
 			// 
 			this->panel2->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)), static_cast<System::Int32>(static_cast<System::Byte>(102)),
 				static_cast<System::Int32>(static_cast<System::Byte>(25)));
-			this->panel2->Controls->Add(this->hideBtn);
-			this->panel2->Controls->Add(this->exitBtn);
 			this->panel2->Dock = System::Windows::Forms::DockStyle::Top;
 			this->panel2->Location = System::Drawing::Point(0, 0);
 			this->panel2->Name = L"panel2";
-			this->panel2->Size = System::Drawing::Size(1349, 88);
+			this->panel2->Size = System::Drawing::Size(1349, 69);
 			this->panel2->TabIndex = 12;
 			// 
 			// panelSidemenu
@@ -535,9 +506,9 @@ namespace ISO {
 			this->panelSidemenu->Controls->Add(this->panelButtons);
 			this->panelSidemenu->Controls->Add(this->panelInput);
 			this->panelSidemenu->Dock = System::Windows::Forms::DockStyle::Left;
-			this->panelSidemenu->Location = System::Drawing::Point(0, 88);
+			this->panelSidemenu->Location = System::Drawing::Point(0, 69);
 			this->panelSidemenu->Name = L"panelSidemenu";
-			this->panelSidemenu->Size = System::Drawing::Size(158, 579);
+			this->panelSidemenu->Size = System::Drawing::Size(158, 598);
 			this->panelSidemenu->TabIndex = 13;
 			// 
 			// panelButtons
@@ -640,7 +611,7 @@ namespace ISO {
 			this->panel1->Controls->Add(this->instructlbl);
 			this->panel1->Controls->Add(this->adbtb);
 			this->panel1->Dock = System::Windows::Forms::DockStyle::Top;
-			this->panel1->Location = System::Drawing::Point(158, 88);
+			this->panel1->Location = System::Drawing::Point(158, 69);
 			this->panel1->Name = L"panel1";
 			this->panel1->Size = System::Drawing::Size(1191, 66);
 			this->panel1->TabIndex = 15;
@@ -666,6 +637,7 @@ namespace ISO {
 			this->Controls->Add(this->isognrt2);
 			this->Controls->Add(this->PBdraw);
 			this->DoubleBuffered = true;
+			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
 			this->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->Name = L"mainform";
 			this->SizeGripStyle = System::Windows::Forms::SizeGripStyle::Hide;
@@ -675,7 +647,6 @@ namespace ISO {
 			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &mainform::mainform_KeyDown);
 			this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &mainform::mainform_KeyUp);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->PBdraw))->EndInit();
-			this->panel2->ResumeLayout(false);
 			this->panelSidemenu->ResumeLayout(false);
 			this->panelButtons->ResumeLayout(false);
 			this->panelInput->ResumeLayout(false);
@@ -777,21 +748,28 @@ namespace ISO {
 									if (adjacencyMatrix1[startDotIndex][endDotIndex] == 1 && adjacencyMatrix1[endDotIndex][startDotIndex] == 1)
 									{
 										if (startDotIndex == endDotIndex) {
+											controlPointloop1.X -= 3;
+											controlPointloop2.Y -= 12;
 											lines->Add(gcnew Line(startPoint, endPoint, false, controlPointloop1, controlPointloop2));
-											controlPointloop1.X -= deltaY;
-											controlPointloop2.Y -= deltaY;
 										}
 										else {
 											lines->Add(gcnew Line(startPoint, endPoint, true, controlPoint1, controlPoint2));
-											controlPoint1.X += deltaY;
-											controlPoint2.Y += deltaY;
+											controlPoint1.X += 7;
+											controlPoint2.Y += 9;
 										}
 									}
 									else {
-										if (startDotIndex == endDotIndex)
+										if (startDotIndex == endDotIndex) {
+											int midX = (startPoint.X + endPoint.X) / 2;
+											int midY = (startPoint.Y + endPoint.Y) / 2;
+											controlPointloop1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
+											controlPointloop2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
+
 											lines->Add(gcnew Line(startPoint, endPoint, false, controlPointloop1, controlPointloop2));
-										else
+										}
+										else {
 											lines->Add(gcnew Line(startPoint, endPoint, false, controlPoint1, controlPoint2));
+										}
 									}
 									objects->Add(lineundo);
 									PBdraw->Invalidate();
@@ -877,8 +855,18 @@ namespace ISO {
 				lineString += "\n";
 			}
 
-			// Display the line count matrix in a message box
-			MessageBox::Show(lineString, "Line Count Matrix", MessageBoxButtons::OK, MessageBoxIcon::Information);
+			// Display the adjacency matrix in a message box
+			MessageBox::Show(lineString, "Line Count", MessageBoxButtons::OK, MessageBoxIcon::Information);
+
+			// Assuming the degrees array has been populated in the PBdraw_Paint event handler
+			if (degrees != nullptr && degrees->Length == dots->Count) {
+				String^ degreesMessage = "Vertex Degrees:\n";
+				for (int i = 0; i < edgecount; i++) {
+					PointAndIndex^ p = dots[i];
+					degreesMessage += "Vertex " + p->index + " : " + degrees[i] + " degrees\n";
+				}
+				MessageBox::Show(degreesMessage, "Vertex Degrees");
+			}
 		}
 
 		//Preview Line
@@ -896,7 +884,21 @@ namespace ISO {
 		private: System::Void PBdraw_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
 			Graphics^ g = e->Graphics;
 			g->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::AntiAlias;
+			// Clear the vertex edge counts before calculating them again
+			vertexEdgeCounts->Clear();
 
+			// Calculate the edge counts for each vertex based on the adjacency matrix
+			array<array<int>^>^ adjacencyMatrix = graph->GetAdjacencyMatrix();
+			array<array<int>^>^ lineCount = graph->GetLineCount();
+
+			int vertexCount = adjacencyMatrix->GetLength(0);
+			for (int i = 0; i < vertexCount; i++) {
+				int edgeCount = 0;
+				for (int j = 0; j < vertexCount; j++) {
+					edgeCount += adjacencyMatrix[i][j];
+				}
+				vertexEdgeCounts->Add(edgeCount);
+			}
 			if (isDrawing == true) {
 				//Declaration
 				int gridSize = 24; // Adjust the size of each grid cell
@@ -925,7 +927,7 @@ namespace ISO {
 					int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
 
 					if (line->startPoint != line->endPoint) {
-						line->DrawLineCurve(g, midX, midY);
+						line->DrawLineCurve(g, midX, midY, Color::Cyan, 2.0);
 
 						SizeF labelSize = g->MeasureString(edgeLabel, letterFont);
 						PointF labelPosition(midX - labelSize.Width / 2, midY - labelSize.Height / 2);
@@ -936,10 +938,22 @@ namespace ISO {
 					}
 				}
 				if (clicknum == 2) {
-					 previewLine->PreviewDraw(g);
+					previewLine->PreviewDraw(g);
+				}
+				// Get the adjacency matrix for the first graph and calculate degrees
+				array<array<int>^>^ adjacencyMatrix1 = graph->GetAdjacencyMatrix();
+				degrees = gcnew array<int>(vertexCount);
+
+				for (int i = 0; i < vertexCount; i++) {
+					degrees[i] = 0; // Initialize degree to 0 for each vertex
+					for (int j = 0; j < vertexCount; j++) {
+						if (j < lineCount[i][j]) {
+							degrees[i]++;
+						}
+					}
 				}
 				//drawing dots
-				for each (PointAndIndex^ p in dots) {
+				for each (PointAndIndex ^ p in dots) {
 					// alignment and size
 					int cellX = p->position.X / gridSize;
 					int cellY = p->position.Y / gridSize;
@@ -952,11 +966,11 @@ namespace ISO {
 					String^ letter = dotnum.ToString();  // convert dotnum to string
 					SizeF size = g->MeasureString(letter, letterFont);
 					PointF position(dotX + (dotSize - size.Width) / 2, dotY + (dotSize - size.Height) / 2);
-					g->DrawString(letter, letterFont, Brushes::Black, position);
+					g->DrawString(letter, letterFont, Brushes::Cyan, position);
 					p->index = dotnum;
 					dotnum++;
 				}
-			}	
+			}
 		}
 		// graph 1
 		private: System::Void isognrt1_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
@@ -988,7 +1002,7 @@ namespace ISO {
 				int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
 
 				if (line->startPoint != line->endPoint) {
-					line->DrawLineCurve(g, midX, midY);
+					line->DrawLineCurve(g, midX, midY, Color::AliceBlue, 2);
 				}
 				if (line->startPoint == line->endPoint) {
 					line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
@@ -1026,7 +1040,7 @@ namespace ISO {
 				int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
 
 				if (line->startPoint != line->endPoint) {
-					line->DrawLineCurve(g, midX, midY);
+					line->DrawLineCurve(g, midX, midY, Color::Aquamarine, 2);
 				}
 				if (line->startPoint == line->endPoint) {
 					line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
@@ -1053,7 +1067,7 @@ namespace ISO {
 					// Create the first graph
 					// Get the adjacency matrix for the first graph
 					array<array<int>^>^ adjacencyMatrix1 = graph->GetAdjacencyMatrix();
-
+					array<array<int>^>^ linecount = graph->GetLineCount();
 					// Create dots for the first graph
 					for (int i = 0; i < vertexCount; i++) {
 						int x, y;
@@ -1064,18 +1078,52 @@ namespace ISO {
 
 						graph1Dots->Add(Point(x, y));
 					}
-					// Connect the dots with lines based on the adjacency matrix
+
+					// Generate a random permutation of indices
+					array<int>^ permutation1 = gcnew array<int>(vertexCount);
+					for (int i = 0; i < vertexCount; i++) {
+						permutation1[i] = i;
+					}
+					for (int i = 0; i < vertexCount - 1; i++) {
+						int j = random->Next(i, vertexCount);
+						int temp = permutation1[i];
+						permutation1[i] = permutation1[j];
+						permutation1[j] = temp;
+					}
+
+					// Create lines for the first graph based on the permuted indices and adjacency matrix
 					for (int i = 0; i < vertexCount; i++) {
 						for (int j = 0; j < vertexCount; j++) {
-							if (adjacencyMatrix1[i][j] == 1){
-								graph1Lines->Add(gcnew Line(graph1Dots[i], graph1Dots[j], false, controlPoint1, controlPoint2));
+							if (adjacencyMatrix1[permutation1[i]][permutation1[j]] == 1) {
+								Point p1 = graph1Dots[i];
+								Point p2 = graph1Dots[j];
+
+									graph1Lines->Add(gcnew Line(p1, p2, false, controlPoint1, controlPoint2));
+
+								if (i == j) {
+									int midX = (startPoint.X + endPoint.X) / 2;
+									int midY = (startPoint.Y + endPoint.Y) / 2;
+									controlPointloops1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
+									controlPointloops2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
+
+									graph1Lines->Add(gcnew Line(p1, p2, false, controlPointloop1, controlPointloop2));
+								}
+								if(linecount[i][j] > 1 && linecount[j][i] > 1)
+								{
+									graph1Lines->Add(gcnew Line(p1, p2, true, controlPoint1, controlPoint2));
+								}
 							}
 						}
 					}
+
 					// Create dots for the second graph
 					for (int i = 0; i < vertexCount; i++) {
-						int x = random->Next(dotSpacing, maxX);
-						int y = random->Next(dotSpacing, maxY);
+						int x, y;
+						do {
+							x = random->Next(dotSpacing, maxX);
+							y = random->Next(dotSpacing, maxY);
+						} while (HasOverlap(graph1Dots, Point(x, y)));
+
 						graph2Dots->Add(Point(x, y));
 					}
 
@@ -1097,8 +1145,20 @@ namespace ISO {
 							if (adjacencyMatrix1[permutation[i]][permutation[j]] == 1) {
 								Point p1 = graph2Dots[i];
 								Point p2 = graph2Dots[j];
-								bool isSelfLoop = (i == j) && (adjacencyMatrix1[i][j] == 1); // Check if vertex i is connected to itself
 								graph2Lines->Add(gcnew Line(p1, p2, false, controlPoint1, controlPoint2));
+
+								if (i == j) {
+									int midX = (startPoint.X + endPoint.X) / 2;
+									int midY = (startPoint.Y + endPoint.Y) / 2;
+									controlPointloops1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
+									controlPointloops2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
+
+									graph2Lines->Add(gcnew Line(p1, p2, false, controlPointloops1, controlPointloops2));
+								}
+								if (j < linecount[startDotIndex][endDotIndex] && j < linecount[endDotIndex][startDotIndex])
+								{
+									graph2Lines->Add(gcnew Line(p1, p2, true, controlPoint1, controlPoint2));
+								}
 							}
 						}
 					}
@@ -1155,17 +1215,12 @@ namespace ISO {
 			graph->ResizeAdjacencyMatrix(0);
 			Point startPoint = Point();
 			Point endPoint = Point();
-			// Calculate the control points to create the letter "C" shaped curve
 			int controlPointOffsetY = 30; // Adjust this value to control the curve's highest point
 			int controlPointOffsetX = 15; // Adjust this value to control the curve's width
 			int midX = (startPoint.X + endPoint.X) / 2;
 			int midY = (startPoint.Y + endPoint.Y) / 2;
-			// Calculate the control points to create the letter "C" shaped curve
-			// Calculate the control points for the Bezier curve
 			Point controlPoint1 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
 			Point controlPoint2 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
-			//Point controlPoint1 = Point(midX - 30, midY - 50);
-			//Point controlPoint2 = Point(midX + 50, midY - 30);
 		}
 		//Undo the recent dot 
 		private: System::Void undobtn_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -1185,16 +1240,13 @@ namespace ISO {
 						showline = true;
 						showDot = true;
 					}
-					if (linecount[startDotIndex][endDotIndex] < 2 && linecount[endDotIndex][startDotIndex] < 2)
-					{
-						
-					}
 				}
 				else if (obj == 1) {
 					if (lines->Count > 0) {
 						previewLine = gcnew Line();
 						lines->RemoveAt(lines->Count - 1);	
 						PBdraw->Invalidate();
+						graph->UndoLine();
 						showDot = true;
 						showline = true;
 						if (linecount[startDotIndex][endDotIndex] < 2 && linecount[endDotIndex][startDotIndex] < 2)

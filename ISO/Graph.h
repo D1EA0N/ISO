@@ -104,6 +104,7 @@ namespace Graphs {
         {
             lineCount[start][end] += 1;
             lineCount[end][start] += 1;
+
         }
         void Undo()
         {
@@ -115,7 +116,18 @@ namespace Graphs {
                 // Remove the edge from the adjacency matrix
                 adjacencyMatrix[start][end] = 0;
                 adjacencyMatrix[end][start] = 0;
+            }
+        }
+        void UndoLine() 
+        {
+            if (operationHistory->Count > 0)
+            {
+                Edge^ lastOperation = operationHistory->Pop();
+                int start = lastOperation->start;
+                int end = lastOperation->end;
 
+                lineCount[start][end] -= 1;
+                lineCount[end][start] -= 1;
             }
         }
         void RemoveDisconnectedVertices()
