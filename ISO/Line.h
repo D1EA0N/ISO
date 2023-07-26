@@ -43,7 +43,6 @@ namespace Lines {
         }
         void LoopLine(Graphics^ g, int midX, int midY) {
             Pen^ pen = gcnew Pen(color, thickness);
-            // Define control points for the Bezier curve
 
             GraphicsPath^ path = gcnew GraphicsPath();
             path->StartFigure();
@@ -60,7 +59,6 @@ namespace Lines {
                 delete pen;
             }
             else {
-
                 Pen^ pen = gcnew Pen(color, thickness);
 
                 GraphicsPath^ path = gcnew GraphicsPath();

@@ -71,7 +71,6 @@ namespace ISO {
 		int clicknum = 1;
 		int dotSize = 24;
 		int dotnum;
-		int lineNum;;
 		String^ edgeLabel;
 		//graph-class variables
 		Graph^ graph = gcnew Graph(dotnum);
@@ -778,9 +777,9 @@ namespace ISO {
 									if (adjacencyMatrix1[startDotIndex][endDotIndex] == 1 && adjacencyMatrix1[endDotIndex][startDotIndex] == 1)
 									{
 										if (startDotIndex == endDotIndex) {
-											lines->Add(gcnew Line(startPoint, endPoint, true, controlPoint1, controlPoint2));
-											controlPoint1.X -= deltaY;
-											controlPoint2.Y -= deltaY;
+											lines->Add(gcnew Line(startPoint, endPoint, false, controlPointloop1, controlPointloop2));
+											controlPointloop1.X -= deltaY;
+											controlPointloop2.Y -= deltaY;
 										}
 										else {
 											lines->Add(gcnew Line(startPoint, endPoint, true, controlPoint1, controlPoint2));
@@ -788,8 +787,12 @@ namespace ISO {
 											controlPoint2.Y += deltaY;
 										}
 									}
-									else
-										lines->Add(gcnew Line(startPoint, endPoint, false, controlPoint1, controlPoint2));
+									else {
+										if (startDotIndex == endDotIndex)
+											lines->Add(gcnew Line(startPoint, endPoint, false, controlPointloop1, controlPointloop2));
+										else
+											lines->Add(gcnew Line(startPoint, endPoint, false, controlPoint1, controlPoint2));
+									}
 									objects->Add(lineundo);
 									PBdraw->Invalidate();
 									clicknum = 1;
@@ -898,7 +901,6 @@ namespace ISO {
 				//Declaration
 				int gridSize = 24; // Adjust the size of each grid cell
 				dotnum = 1;
-				lineNum = 1;
 				Pen^ gridPen = gcnew Pen(Color::FromArgb(0, 0, 0)); // Adjust the color of the grid line
 				List<Line^> prevLines;
 
@@ -960,7 +962,6 @@ namespace ISO {
 		private: System::Void isognrt1_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
 			Graphics^ g = e->Graphics;
 			g->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::AntiAlias;
-			int lineNum = 1;
 
 			// Draw the dots and numbers for graph 1
 			for (int i = 0; i < graph1Dots->Count; i++) {
@@ -992,18 +993,12 @@ namespace ISO {
 				if (line->startPoint == line->endPoint) {
 					line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
 				}
-				// Draw the line number beside the line
-				String^ lineLabel = lineNum.ToString();
-				SizeF labelSize = g->MeasureString(lineLabel, letterFont);
-				PointF labelPosition(midX - labelSize.Width / 2, midY - labelSize.Height / 2);
-				g->DrawString(lineLabel, letterFont, Brushes::Black, labelPosition);
 			}
 		// graph 2
 		}
 		private: System::Void isognrt2_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
 			Graphics^ g = e->Graphics;
 			g->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::AntiAlias;
-			int lineNum = 1;
 			array<array<int>^>^ adjacencyMatrix1 = graph->GetAdjacencyMatrix();
 
 			// Draw the dots and numbers for graph 2
@@ -1184,10 +1179,15 @@ namespace ISO {
 				
 				if (obj == 0) {
 					if (dots->Count > 0) {
-						dots->RemoveAt(dots->Count - 1);					
+						dots->RemoveAt(dots->Count - 1);	
+						graph->RemoveDisconnectedVertices();
 						PBdraw->Invalidate();
 						showline = true;
 						showDot = true;
+					}
+					if (linecount[startDotIndex][endDotIndex] < 2 && linecount[endDotIndex][startDotIndex] < 2)
+					{
+						
 					}
 				}
 				else if (obj == 1) {
@@ -1197,11 +1197,10 @@ namespace ISO {
 						PBdraw->Invalidate();
 						showDot = true;
 						showline = true;
-					}
-					if (linecount[startDotIndex][endDotIndex] < 2 && linecount[endDotIndex][startDotIndex] < 2)
-					{
-						graph->RemoveDisconnectedVertices();
-						graph->Undo();
+						if (linecount[startDotIndex][endDotIndex] < 2 && linecount[endDotIndex][startDotIndex] < 2)
+						{
+							graph->Undo();
+						}
 					}
 				}
 				objects->RemoveAt(objects->Count - 1); // Update the objects collection
