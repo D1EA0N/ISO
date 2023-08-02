@@ -33,14 +33,13 @@ namespace ISO {
 		Line^ previewLine;
 		Line^ line;
 		//lists
-		Dictionary<String^, int>^ vertexDegrees = gcnew Dictionary<String^, int>();
+		Dictionary<int, int>^ dotDegrees = gcnew Dictionary<int, int>();; // Add this line to your class definition
 		List<Line^>^ lines = gcnew List<Line^>();
 		List<Point>^ graph1Dots = gcnew List<Point>();  // Dots for graph 1
 		List<Point>^ graph2Dots = gcnew List<Point>();  // Dots for graph 2
 		List<Line^>^ graph1Lines = gcnew List<Line^>();  // Lines for graph 1
 		List<Line^>^ graph2Lines = gcnew List<Line^>();  // Lines for graph 2
 		List<Line^>^ linesList = gcnew List<Line^>();
-		List<int>^ vertexEdgeCounts = gcnew List<int>();
 		Random^ random = gcnew Random();  // Random number generator
 		//Points
 		Point startPoint = Point();
@@ -56,7 +55,6 @@ namespace ISO {
 		int midY = (startPoint.Y + endPoint.Y) / 2;
 		Point controlPoint1 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
 		Point controlPoint2 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
-		array<int>^ degrees = gcnew array<int>(edgecount);
 		//variables
 		float angle;
 		bool isDrawing = false;
@@ -85,10 +83,9 @@ namespace ISO {
 		Stack<Point>^ dotHistory = gcnew Stack<Point>();
 		Stack<Point>^ lineHistory = gcnew Stack<Point>();
 		//Modifications
-		Color dotFillColor = Color::Yellow;
-		Color dotOutlineColor = Color::Black;
+		Color dotFillColor = Color::DarkSlateGray;
+		Color dotOutlineColor = Color::Cyan;
 		Drawing::Font^ letterFont = gcnew System::Drawing::Font("Comic Sans MS", 8);
-		System::Drawing::Color lineColor = System::Drawing::Color::Red;
 		//Draw mode
 		int DrawMode = 2;
 
@@ -113,6 +110,9 @@ namespace ISO {
 		List<DrawObject^>^ objects = gcnew List<DrawObject^>();
 		DrawObject^ dotundo = gcnew DrawObject();
 
+	private: System::Windows::Forms::Panel^ panel3;
+	private: System::Windows::Forms::Panel^ panel5;
+
 
 		   DrawObject^ lineundo = gcnew DrawObject();
 
@@ -133,6 +133,14 @@ namespace ISO {
 			}
 			return false;
 		}
+		void UpdateDotDegrees(int dotIndex) {
+			if (dotDegrees->ContainsKey(dotIndex)) {
+				dotDegrees[dotIndex]++;
+			}
+			else {
+				dotDegrees->Add(dotIndex, 1);
+			}
+		}
 		//------------------------------------- 
 	private: System::Windows::Forms::ErrorProvider^ errorValidator;
 	private: System::Windows::Forms::ToolTip^ toolTip1;
@@ -146,7 +154,7 @@ namespace ISO {
 
 	private: System::Windows::Forms::Panel^ panel2;
 	private: System::Windows::Forms::Panel^ panelSidemenu;
-	private: System::Windows::Forms::Panel^ panelButtons;
+
 	private: System::Windows::Forms::Button^ Clearbtn;
 	private: System::Windows::Forms::PictureBox^ isognrt2;
 	private: System::Windows::Forms::PictureBox^ isognrt1;
@@ -157,7 +165,7 @@ namespace ISO {
 	private: System::Windows::Forms::Button^ adbtb;
 
 
-	private: System::Windows::Forms::Panel^ panelInput;
+
 
 
 
@@ -225,18 +233,16 @@ namespace ISO {
 			this->timer_move = (gcnew System::Windows::Forms::Timer(this->components));
 			this->panel2 = (gcnew System::Windows::Forms::Panel());
 			this->panelSidemenu = (gcnew System::Windows::Forms::Panel());
-			this->panelButtons = (gcnew System::Windows::Forms::Panel());
-			this->panelInput = (gcnew System::Windows::Forms::Panel());
 			this->adbtb = (gcnew System::Windows::Forms::Button());
 			this->isognrt2 = (gcnew System::Windows::Forms::PictureBox());
 			this->isognrt1 = (gcnew System::Windows::Forms::PictureBox());
 			this->instructlbl = (gcnew System::Windows::Forms::Label());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
 			this->errorValidator = (gcnew System::Windows::Forms::ErrorProvider(this->components));
+			this->panel3 = (gcnew System::Windows::Forms::Panel());
+			this->panel5 = (gcnew System::Windows::Forms::Panel());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->PBdraw))->BeginInit();
-			this->panelSidemenu->SuspendLayout();
-			this->panelButtons->SuspendLayout();
-			this->panelInput->SuspendLayout();
+			this->panel2->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->isognrt2))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->isognrt1))->BeginInit();
 			this->panel1->SuspendLayout();
@@ -250,7 +256,7 @@ namespace ISO {
 			this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Uighur", 15.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->label1->ForeColor = System::Drawing::SystemColors::ActiveCaptionText;
-			this->label1->Location = System::Drawing::Point(14, 17);
+			this->label1->Location = System::Drawing::Point(56, 10);
 			this->label1->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->label1->Name = L"label1";
 			this->label1->Size = System::Drawing::Size(58, 28);
@@ -264,7 +270,7 @@ namespace ISO {
 			this->label2->Font = (gcnew System::Drawing::Font(L"Microsoft Uighur", 15.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->label2->ForeColor = System::Drawing::SystemColors::ActiveCaptionText;
-			this->label2->Location = System::Drawing::Point(27, 57);
+			this->label2->Location = System::Drawing::Point(69, 50);
 			this->label2->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(41, 28);
@@ -273,7 +279,7 @@ namespace ISO {
 			// 
 			// Verticestb
 			// 
-			this->Verticestb->Location = System::Drawing::Point(76, 20);
+			this->Verticestb->Location = System::Drawing::Point(118, 13);
 			this->Verticestb->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->Verticestb->Name = L"Verticestb";
 			this->Verticestb->Size = System::Drawing::Size(60, 20);
@@ -286,7 +292,7 @@ namespace ISO {
 			// 
 			// Edgetb
 			// 
-			this->Edgetb->Location = System::Drawing::Point(76, 60);
+			this->Edgetb->Location = System::Drawing::Point(118, 53);
 			this->Edgetb->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->Edgetb->Name = L"Edgetb";
 			this->Edgetb->Size = System::Drawing::Size(60, 20);
@@ -311,13 +317,12 @@ namespace ISO {
 			this->enterbtn->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->enterbtn->Font = (gcnew System::Drawing::Font(L"Segoe UI", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->enterbtn->Location = System::Drawing::Point(32, 6);
+			this->enterbtn->Location = System::Drawing::Point(186, 47);
 			this->enterbtn->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->enterbtn->Name = L"enterbtn";
 			this->enterbtn->Padding = System::Windows::Forms::Padding(5, 0, 0, 0);
-			this->enterbtn->Size = System::Drawing::Size(80, 64);
+			this->enterbtn->Size = System::Drawing::Size(38, 34);
 			this->enterbtn->TabIndex = 1;
-			this->enterbtn->Text = L"Enter";
 			this->enterbtn->TextAlign = System::Drawing::ContentAlignment::BottomCenter;
 			this->toolTip1->SetToolTip(this->enterbtn, L"Click to Enter");
 			this->enterbtn->UseVisualStyleBackColor = false;
@@ -325,10 +330,11 @@ namespace ISO {
 			// 
 			// PBdraw
 			// 
-			this->PBdraw->BackColor = System::Drawing::Color::LightSlateGray;
+			this->PBdraw->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(0)), static_cast<System::Int32>(static_cast<System::Byte>(51)),
+				static_cast<System::Int32>(static_cast<System::Byte>(51)));
 			this->PBdraw->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->PBdraw->Cursor = System::Windows::Forms::Cursors::Cross;
-			this->PBdraw->Location = System::Drawing::Point(167, 160);
+			this->PBdraw->Location = System::Drawing::Point(29, 143);
 			this->PBdraw->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->PBdraw->Name = L"PBdraw";
 			this->PBdraw->Size = System::Drawing::Size(502, 437);
@@ -359,12 +365,11 @@ namespace ISO {
 			this->undobtn->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->undobtn->Font = (gcnew System::Drawing::Font(L"Segoe UI", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->undobtn->Location = System::Drawing::Point(32, 133);
+			this->undobtn->Location = System::Drawing::Point(232, 47);
 			this->undobtn->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->undobtn->Name = L"undobtn";
-			this->undobtn->Size = System::Drawing::Size(80, 64);
+			this->undobtn->Size = System::Drawing::Size(38, 34);
 			this->undobtn->TabIndex = 5;
-			this->undobtn->Text = L"Undo";
 			this->undobtn->TextAlign = System::Drawing::ContentAlignment::BottomCenter;
 			this->toolTip1->SetToolTip(this->undobtn, L"Click to undo the recent vertex/edge");
 			this->undobtn->UseVisualStyleBackColor = false;
@@ -387,13 +392,12 @@ namespace ISO {
 			this->Clearbtn->Font = (gcnew System::Drawing::Font(L"Segoe UI", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->Clearbtn->ImageAlign = System::Drawing::ContentAlignment::MiddleLeft;
-			this->Clearbtn->Location = System::Drawing::Point(32, 66);
+			this->Clearbtn->Location = System::Drawing::Point(278, 47);
 			this->Clearbtn->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->Clearbtn->Name = L"Clearbtn";
 			this->Clearbtn->Padding = System::Windows::Forms::Padding(4, 0, 0, 0);
-			this->Clearbtn->Size = System::Drawing::Size(80, 64);
+			this->Clearbtn->Size = System::Drawing::Size(38, 34);
 			this->Clearbtn->TabIndex = 5;
-			this->Clearbtn->Text = L"Clear";
 			this->Clearbtn->TextAlign = System::Drawing::ContentAlignment::BottomCenter;
 			this->Clearbtn->TextImageRelation = System::Windows::Forms::TextImageRelation::TextBeforeImage;
 			this->toolTip1->SetToolTip(this->Clearbtn, L"Click to clear the content of the textbox and drawing box");
@@ -414,13 +418,12 @@ namespace ISO {
 			this->addvertexbtn->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->addvertexbtn->Font = (gcnew System::Drawing::Font(L"Segoe UI", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->addvertexbtn->Location = System::Drawing::Point(32, 203);
+			this->addvertexbtn->Location = System::Drawing::Point(370, 47);
 			this->addvertexbtn->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->addvertexbtn->Name = L"addvertexbtn";
 			this->addvertexbtn->Padding = System::Windows::Forms::Padding(5, 0, 0, 0);
-			this->addvertexbtn->Size = System::Drawing::Size(80, 64);
+			this->addvertexbtn->Size = System::Drawing::Size(38, 34);
 			this->addvertexbtn->TabIndex = 1;
-			this->addvertexbtn->Text = L"Add Vertex";
 			this->addvertexbtn->TextAlign = System::Drawing::ContentAlignment::BottomCenter;
 			this->toolTip1->SetToolTip(this->addvertexbtn, L"Click here to add vertices");
 			this->addvertexbtn->UseVisualStyleBackColor = false;
@@ -433,7 +436,7 @@ namespace ISO {
 			this->connectbtn->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
 			this->connectbtn->BackColor = System::Drawing::Color::Transparent;
 			this->connectbtn->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"connectbtn.BackgroundImage")));
-			this->connectbtn->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Center;
+			this->connectbtn->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
 			this->connectbtn->Cursor = System::Windows::Forms::Cursors::Hand;
 			this->connectbtn->FlatAppearance->BorderColor = System::Drawing::Color::LightCyan;
 			this->connectbtn->FlatAppearance->BorderSize = 0;
@@ -442,13 +445,12 @@ namespace ISO {
 			this->connectbtn->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->connectbtn->Font = (gcnew System::Drawing::Font(L"Segoe UI", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->connectbtn->Location = System::Drawing::Point(19, 273);
+			this->connectbtn->Location = System::Drawing::Point(324, 47);
 			this->connectbtn->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->connectbtn->Name = L"connectbtn";
 			this->connectbtn->Padding = System::Windows::Forms::Padding(5, 0, 0, 0);
-			this->connectbtn->Size = System::Drawing::Size(105, 83);
+			this->connectbtn->Size = System::Drawing::Size(38, 34);
 			this->connectbtn->TabIndex = 1;
-			this->connectbtn->Text = L"Connect Vertices";
 			this->connectbtn->TextAlign = System::Drawing::ContentAlignment::BottomCenter;
 			this->toolTip1->SetToolTip(this->connectbtn, L"Click here to connect edges");
 			this->connectbtn->UseVisualStyleBackColor = false;
@@ -462,7 +464,7 @@ namespace ISO {
 			this->CBgrid->BackColor = System::Drawing::Color::Transparent;
 			this->CBgrid->Cursor = System::Windows::Forms::Cursors::Hand;
 			this->CBgrid->ForeColor = System::Drawing::SystemColors::ActiveCaptionText;
-			this->CBgrid->Location = System::Drawing::Point(4, 46);
+			this->CBgrid->Location = System::Drawing::Point(29, 120);
 			this->CBgrid->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->CBgrid->Name = L"CBgrid";
 			this->CBgrid->Size = System::Drawing::Size(75, 17);
@@ -473,9 +475,10 @@ namespace ISO {
 			// 
 			// generatebtn
 			// 
+			this->generatebtn->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
 			this->generatebtn->BackColor = System::Drawing::SystemColors::ButtonFace;
 			this->generatebtn->ForeColor = System::Drawing::SystemColors::ActiveCaptionText;
-			this->generatebtn->Location = System::Drawing::Point(164, 609);
+			this->generatebtn->Location = System::Drawing::Point(1082, 451);
 			this->generatebtn->Name = L"generatebtn";
 			this->generatebtn->Size = System::Drawing::Size(252, 58);
 			this->generatebtn->TabIndex = 10;
@@ -491,52 +494,23 @@ namespace ISO {
 			// 
 			// panel2
 			// 
-			this->panel2->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)), static_cast<System::Int32>(static_cast<System::Byte>(102)),
-				static_cast<System::Int32>(static_cast<System::Byte>(25)));
+			this->panel2->BackColor = System::Drawing::Color::Black;
+			this->panel2->Controls->Add(this->panel1);
 			this->panel2->Dock = System::Windows::Forms::DockStyle::Top;
 			this->panel2->Location = System::Drawing::Point(0, 0);
 			this->panel2->Name = L"panel2";
-			this->panel2->Size = System::Drawing::Size(1349, 69);
+			this->panel2->Size = System::Drawing::Size(1384, 109);
 			this->panel2->TabIndex = 12;
 			// 
 			// panelSidemenu
 			// 
 			this->panelSidemenu->AutoScroll = true;
 			this->panelSidemenu->BackColor = System::Drawing::Color::Gray;
-			this->panelSidemenu->Controls->Add(this->panelButtons);
-			this->panelSidemenu->Controls->Add(this->panelInput);
 			this->panelSidemenu->Dock = System::Windows::Forms::DockStyle::Left;
-			this->panelSidemenu->Location = System::Drawing::Point(0, 69);
+			this->panelSidemenu->Location = System::Drawing::Point(0, 109);
 			this->panelSidemenu->Name = L"panelSidemenu";
-			this->panelSidemenu->Size = System::Drawing::Size(158, 598);
+			this->panelSidemenu->Size = System::Drawing::Size(22, 502);
 			this->panelSidemenu->TabIndex = 13;
-			// 
-			// panelButtons
-			// 
-			this->panelButtons->BackColor = System::Drawing::Color::Gray;
-			this->panelButtons->Controls->Add(this->addvertexbtn);
-			this->panelButtons->Controls->Add(this->connectbtn);
-			this->panelButtons->Controls->Add(this->enterbtn);
-			this->panelButtons->Controls->Add(this->Clearbtn);
-			this->panelButtons->Controls->Add(this->undobtn);
-			this->panelButtons->Dock = System::Windows::Forms::DockStyle::Top;
-			this->panelButtons->Location = System::Drawing::Point(0, 100);
-			this->panelButtons->Name = L"panelButtons";
-			this->panelButtons->Size = System::Drawing::Size(158, 367);
-			this->panelButtons->TabIndex = 14;
-			// 
-			// panelInput
-			// 
-			this->panelInput->BackColor = System::Drawing::Color::Gray;
-			this->panelInput->Controls->Add(this->label1);
-			this->panelInput->Controls->Add(this->Verticestb);
-			this->panelInput->Controls->Add(this->label2);
-			this->panelInput->Controls->Add(this->Edgetb);
-			this->panelInput->Dock = System::Windows::Forms::DockStyle::Top;
-			this->panelInput->Location = System::Drawing::Point(0, 0);
-			this->panelInput->Name = L"panelInput";
-			this->panelInput->Size = System::Drawing::Size(158, 100);
-			this->panelInput->TabIndex = 14;
 			// 
 			// adbtb
 			// 
@@ -551,7 +525,7 @@ namespace ISO {
 			this->adbtb->FlatStyle = System::Windows::Forms::FlatStyle::Flat;
 			this->adbtb->Font = (gcnew System::Drawing::Font(L"Segoe UI", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->adbtb->Location = System::Drawing::Point(0, 6);
+			this->adbtb->Location = System::Drawing::Point(100, 116);
 			this->adbtb->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->adbtb->Name = L"adbtb";
 			this->adbtb->Padding = System::Windows::Forms::Padding(5, 0, 0, 0);
@@ -565,13 +539,13 @@ namespace ISO {
 			// isognrt2
 			// 
 			this->isognrt2->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
-			this->isognrt2->BackColor = System::Drawing::Color::LightSlateGray;
+			this->isognrt2->BackColor = System::Drawing::Color::DarkSlateGray;
 			this->isognrt2->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->isognrt2->Cursor = System::Windows::Forms::Cursors::Cross;
-			this->isognrt2->Location = System::Drawing::Point(1022, 157);
+			this->isognrt2->Location = System::Drawing::Point(986, 143);
 			this->isognrt2->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->isognrt2->Name = L"isognrt2";
-			this->isognrt2->Size = System::Drawing::Size(314, 268);
+			this->isognrt2->Size = System::Drawing::Size(349, 302);
 			this->isognrt2->TabIndex = 0;
 			this->isognrt2->TabStop = false;
 			this->isognrt2->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &mainform::isognrt2_Paint);
@@ -579,13 +553,13 @@ namespace ISO {
 			// isognrt1
 			// 
 			this->isognrt1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
-			this->isognrt1->BackColor = System::Drawing::Color::LightSlateGray;
+			this->isognrt1->BackColor = System::Drawing::Color::DarkSlateGray;
 			this->isognrt1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->isognrt1->Cursor = System::Windows::Forms::Cursors::Cross;
-			this->isognrt1->Location = System::Drawing::Point(686, 160);
+			this->isognrt1->Location = System::Drawing::Point(602, 143);
 			this->isognrt1->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->isognrt1->Name = L"isognrt1";
-			this->isognrt1->Size = System::Drawing::Size(314, 268);
+			this->isognrt1->Size = System::Drawing::Size(352, 302);
 			this->isognrt1->TabIndex = 0;
 			this->isognrt1->TabStop = false;
 			this->isognrt1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &mainform::isognrt1_Paint);
@@ -597,7 +571,7 @@ namespace ISO {
 			this->instructlbl->Font = (gcnew System::Drawing::Font(L"Comic Sans MS", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->instructlbl->ForeColor = System::Drawing::Color::DarkSlateGray;
-			this->instructlbl->Location = System::Drawing::Point(86, 37);
+			this->instructlbl->Location = System::Drawing::Point(216, 116);
 			this->instructlbl->Name = L"instructlbl";
 			this->instructlbl->Size = System::Drawing::Size(20, 23);
 			this->instructlbl->TabIndex = 14;
@@ -606,19 +580,46 @@ namespace ISO {
 			// 
 			// panel1
 			// 
-			this->panel1->BackColor = System::Drawing::Color::LightGreen;
-			this->panel1->Controls->Add(this->CBgrid);
-			this->panel1->Controls->Add(this->instructlbl);
-			this->panel1->Controls->Add(this->adbtb);
-			this->panel1->Dock = System::Windows::Forms::DockStyle::Top;
-			this->panel1->Location = System::Drawing::Point(158, 69);
+			this->panel1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
+				| System::Windows::Forms::AnchorStyles::Right));
+			this->panel1->BackColor = System::Drawing::Color::SaddleBrown;
+			this->panel1->Controls->Add(this->connectbtn);
+			this->panel1->Controls->Add(this->addvertexbtn);
+			this->panel1->Controls->Add(this->label1);
+			this->panel1->Controls->Add(this->Verticestb);
+			this->panel1->Controls->Add(this->Clearbtn);
+			this->panel1->Controls->Add(this->enterbtn);
+			this->panel1->Controls->Add(this->undobtn);
+			this->panel1->Controls->Add(this->Edgetb);
+			this->panel1->Controls->Add(this->label2);
+			this->panel1->Location = System::Drawing::Point(22, 12);
 			this->panel1->Name = L"panel1";
-			this->panel1->Size = System::Drawing::Size(1191, 66);
+			this->panel1->Size = System::Drawing::Size(1340, 84);
 			this->panel1->TabIndex = 15;
 			// 
 			// errorValidator
 			// 
 			this->errorValidator->ContainerControl = this;
+			// 
+			// panel3
+			// 
+			this->panel3->AutoScroll = true;
+			this->panel3->BackColor = System::Drawing::Color::Gray;
+			this->panel3->Dock = System::Windows::Forms::DockStyle::Right;
+			this->panel3->Location = System::Drawing::Point(1362, 109);
+			this->panel3->Name = L"panel3";
+			this->panel3->Size = System::Drawing::Size(22, 502);
+			this->panel3->TabIndex = 15;
+			// 
+			// panel5
+			// 
+			this->panel5->AutoScroll = true;
+			this->panel5->BackColor = System::Drawing::Color::Gray;
+			this->panel5->Dock = System::Windows::Forms::DockStyle::Bottom;
+			this->panel5->Location = System::Drawing::Point(22, 586);
+			this->panel5->Name = L"panel5";
+			this->panel5->Size = System::Drawing::Size(1340, 25);
+			this->panel5->TabIndex = 17;
 			// 
 			// mainform
 			// 
@@ -626,10 +627,14 @@ namespace ISO {
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->AutoScroll = true;
 			this->AutoSize = true;
-			this->BackColor = System::Drawing::Color::LightSkyBlue;
+			this->BackColor = System::Drawing::Color::DarkGray;
 			this->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
-			this->ClientSize = System::Drawing::Size(1349, 667);
-			this->Controls->Add(this->panel1);
+			this->ClientSize = System::Drawing::Size(1384, 611);
+			this->Controls->Add(this->panel5);
+			this->Controls->Add(this->panel3);
+			this->Controls->Add(this->CBgrid);
+			this->Controls->Add(this->instructlbl);
+			this->Controls->Add(this->adbtb);
 			this->Controls->Add(this->panelSidemenu);
 			this->Controls->Add(this->panel2);
 			this->Controls->Add(this->generatebtn);
@@ -637,7 +642,6 @@ namespace ISO {
 			this->Controls->Add(this->isognrt2);
 			this->Controls->Add(this->PBdraw);
 			this->DoubleBuffered = true;
-			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
 			this->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->Name = L"mainform";
 			this->SizeGripStyle = System::Windows::Forms::SizeGripStyle::Hide;
@@ -647,16 +651,14 @@ namespace ISO {
 			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &mainform::mainform_KeyDown);
 			this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &mainform::mainform_KeyUp);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->PBdraw))->EndInit();
-			this->panelSidemenu->ResumeLayout(false);
-			this->panelButtons->ResumeLayout(false);
-			this->panelInput->ResumeLayout(false);
-			this->panelInput->PerformLayout();
+			this->panel2->ResumeLayout(false);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->isognrt2))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->isognrt1))->EndInit();
 			this->panel1->ResumeLayout(false);
 			this->panel1->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->errorValidator))->EndInit();
 			this->ResumeLayout(false);
+			this->PerformLayout();
 
 		}
 #pragma endregion
@@ -735,16 +737,16 @@ namespace ISO {
 								case 1:
 									startPoint = Point(dotX + dotSize / 2, dotY + dotSize / 2); // Use dot center as start point
 									startDotIndex = dot->index - 1;
+									UpdateDotDegrees(dot->index);
 									clicknum++;
 									break;
 								case 2:
 									instructlbl->Text = "Select the first point of the edge";
 									endPoint = Point(dotX + dotSize / 2, dotY + dotSize / 2); // Use dot center as end point
+									UpdateDotDegrees(dot->index);
 									endDotIndex = dot->index - 1;
 									lineundo->Type = 1;
 									int deltaY = 10; // Adjust this value to increase the arc height
-
-									
 									if (adjacencyMatrix1[startDotIndex][endDotIndex] == 1 && adjacencyMatrix1[endDotIndex][startDotIndex] == 1)
 									{
 										if (startDotIndex == endDotIndex) {
@@ -858,15 +860,14 @@ namespace ISO {
 			// Display the adjacency matrix in a message box
 			MessageBox::Show(lineString, "Line Count", MessageBoxButtons::OK, MessageBoxIcon::Information);
 
-			// Assuming the degrees array has been populated in the PBdraw_Paint event handler
-			if (degrees != nullptr && degrees->Length == dots->Count) {
-				String^ degreesMessage = "Vertex Degrees:\n";
-				for (int i = 0; i < edgecount; i++) {
-					PointAndIndex^ p = dots[i];
-					degreesMessage += "Vertex " + p->index + " : " + degrees[i] + " degrees\n";
-				}
-				MessageBox::Show(degreesMessage, "Vertex Degrees");
+			// Output all vertices' degrees in the textbox
+			String^ degreesText = "Vertices' degrees:\n";
+			for each (PointAndIndex ^ dot in dots) {
+				int vertexIndex = dot->index;
+				int degree = dotDegrees[vertexIndex];
+				degreesText += "Vertex " + vertexIndex + ": " + degree + "\n";
 			}
+			MessageBox::Show(degreesText);
 		}
 
 		//Preview Line
@@ -884,21 +885,7 @@ namespace ISO {
 		private: System::Void PBdraw_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
 			Graphics^ g = e->Graphics;
 			g->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::AntiAlias;
-			// Clear the vertex edge counts before calculating them again
-			vertexEdgeCounts->Clear();
 
-			// Calculate the edge counts for each vertex based on the adjacency matrix
-			array<array<int>^>^ adjacencyMatrix = graph->GetAdjacencyMatrix();
-			array<array<int>^>^ lineCount = graph->GetLineCount();
-
-			int vertexCount = adjacencyMatrix->GetLength(0);
-			for (int i = 0; i < vertexCount; i++) {
-				int edgeCount = 0;
-				for (int j = 0; j < vertexCount; j++) {
-					edgeCount += adjacencyMatrix[i][j];
-				}
-				vertexEdgeCounts->Add(edgeCount);
-			}
 			if (isDrawing == true) {
 				//Declaration
 				int gridSize = 24; // Adjust the size of each grid cell
@@ -940,18 +927,7 @@ namespace ISO {
 				if (clicknum == 2) {
 					previewLine->PreviewDraw(g);
 				}
-				// Get the adjacency matrix for the first graph and calculate degrees
-				array<array<int>^>^ adjacencyMatrix1 = graph->GetAdjacencyMatrix();
-				degrees = gcnew array<int>(vertexCount);
 
-				for (int i = 0; i < vertexCount; i++) {
-					degrees[i] = 0; // Initialize degree to 0 for each vertex
-					for (int j = 0; j < vertexCount; j++) {
-						if (j < lineCount[i][j]) {
-							degrees[i]++;
-						}
-					}
-				}
 				//drawing dots
 				for each (PointAndIndex ^ p in dots) {
 					// alignment and size

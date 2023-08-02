@@ -25,7 +25,7 @@ namespace Lines {
         Line(Point start, Point end, bool curve, Point cp1, Point cp2)
             :startPoint(start), endPoint(end), IsCurve(curve), controlPoints1(cp1), controlPoints2(cp2)
         {
-            color = Color::DarkRed;
+            color = Color::Cyan;
             thickness = 2;
 
             // Set default control points at a distance of 50 units above the midpoint
