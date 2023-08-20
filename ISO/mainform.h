@@ -33,7 +33,7 @@ namespace ISO {
 		Line^ previewLine;
 		Line^ line;
 		//lists
-		Dictionary<int, int>^ dotDegrees = gcnew Dictionary<int, int>();; // Add this line to your class definition
+		Dictionary<int, int>^ dotDegrees = gcnew Dictionary<int, int>();
 		List<Line^>^ lines = gcnew List<Line^>();
 		List<Point>^ graph1Dots = gcnew List<Point>();  // Dots for graph 1
 		List<Point>^ graph2Dots = gcnew List<Point>();  // Dots for graph 2
@@ -49,12 +49,14 @@ namespace ISO {
 		Point controlPointloops1;
 		Point controlPointloops2;
 		// Calculate the control points to create the letter "C" shaped curve
-		int controlPointOffsetY = 30; // Adjust this value to control the curve's highest point
+		int controlPointOffsetY = 15; // Adjust this value to control the curve's highest point
 		int controlPointOffsetX = 15; // Adjust this value to control the curve's width
 		int midX = (startPoint.X + endPoint.X) / 2;
 		int midY = (startPoint.Y + endPoint.Y) / 2;
 		Point controlPoint1 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
 		Point controlPoint2 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
+		Point controlPoints1 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
+		Point controlPoints2 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
 		//variables
 		float angle;
 		bool isDrawing = false;
@@ -88,7 +90,6 @@ namespace ISO {
 		Drawing::Font^ letterFont = gcnew System::Drawing::Font("Comic Sans MS", 8);
 		//Draw mode
 		int DrawMode = 2;
-
 		ref class PointAndIndex
 		{
 		public:
@@ -663,7 +664,6 @@ namespace ISO {
 		}
 #pragma endregion
 		// Loading Mainform
-		// Loading Mainform
 		private: System::Void mainform_Load(System::Object^ sender, System::EventArgs^ e) {
 			PBdraw->Hide();
 			// Initialize the Timer control
@@ -828,8 +828,6 @@ namespace ISO {
 				}
 				matrixString += "\n";
 			}
-
-			// Display the adjacency matrix in a message box
 			MessageBox::Show(matrixString, "Adjacency Matrix", MessageBoxButtons::OK, MessageBoxIcon::Information);
 
 			array<array<int>^>^ lineCount = graph->GetLineCount();
@@ -856,16 +854,18 @@ namespace ISO {
 				}
 				lineString += "\n";
 			}
-
-			// Display the adjacency matrix in a message box
 			MessageBox::Show(lineString, "Line Count", MessageBoxButtons::OK, MessageBoxIcon::Information);
 
-			// Output all vertices' degrees in the textbox
+			// Display the adjacency matrix in a message box
 			String^ degreesText = "Vertices' degrees:\n";
 			for each (PointAndIndex ^ dot in dots) {
-				int vertexIndex = dot->index;
-				int degree = dotDegrees[vertexIndex];
-				degreesText += "Vertex " + vertexIndex + ": " + degree + "\n";
+				int vertexIndex = dot->index;	
+				if (dotDegrees->ContainsKey(vertexIndex)) {
+					degreesText += "Vertex " + vertexIndex + ": " + dotDegrees[vertexIndex] + "\n";
+				}
+				else {
+					degreesText += "Vertex " + vertexIndex + ": " + 0 + "\n";
+				}
 			}
 			MessageBox::Show(degreesText);
 		}
@@ -953,6 +953,20 @@ namespace ISO {
 			Graphics^ g = e->Graphics;
 			g->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::AntiAlias;
 
+			// Draw the lines for graph 1
+			for each (Line ^ line in graph1Lines) {
+				// Calculate the percentage of the distance to determine control point positions
+				int midX = (line->startPoint.X + line->endPoint.X) / 2;
+				int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
+
+				if (line->startPoint != line->endPoint) {
+					line->DrawLineCurve(g, midX, midY, Color::AliceBlue, 2);
+				}
+				if (line->startPoint == line->endPoint) {
+					line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
+				}
+			}
+
 			// Draw the dots and numbers for graph 1
 			for (int i = 0; i < graph1Dots->Count; i++) {
 				Point p = graph1Dots[i];
@@ -970,26 +984,26 @@ namespace ISO {
 				PointF textLocation = PointF(p.X - textSize.Width / 2, p.Y - textSize.Height / 2);
 				g->DrawString(dotNumber, letterFont, Brushes::Black, textLocation);
 			}
-
-			// Draw the lines for graph 1
-			for each (Line ^ line in graph1Lines) {
-				// Calculate the percentage of the distance to determine control point positions
-				int midX = (line->startPoint.X + line->endPoint.X) / 2;
-				int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
-
-				if (line->startPoint != line->endPoint) {
-					line->DrawLineCurve(g, midX, midY, Color::AliceBlue, 2);
-				}
-				if (line->startPoint == line->endPoint) {
-					line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
-				}
-			}
 		// graph 2
 		}
 		private: System::Void isognrt2_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
 			Graphics^ g = e->Graphics;
 			g->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::AntiAlias;
 			array<array<int>^>^ adjacencyMatrix1 = graph->GetAdjacencyMatrix();
+
+			// Draw the lines for graph 2
+			for each (Line ^ line in graph2Lines) {
+				// Calculate the percentage of the distance to determine control point positions
+				int midX = (line->startPoint.X + line->endPoint.X) / 2;
+				int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
+
+				if (line->startPoint != line->endPoint) {
+					line->DrawLineCurve(g, midX, midY, Color::Aquamarine, 2);
+				}
+				if (line->startPoint == line->endPoint) {
+					line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
+				}
+			}
 
 			// Draw the dots and numbers for graph 2
 			for (int i = 0; i < graph2Dots->Count; i++) {
@@ -1009,19 +1023,6 @@ namespace ISO {
 				PointF textLocation = PointF(p.X - textSize.Width / 2, p.Y - textSize.Height / 2);
 				g->DrawString(dotNumber, letterFont, Brushes::Black, textLocation);
 			}
-			// Draw the lines for graph 2
-			for each (Line ^ line in graph2Lines) {
-				// Calculate the percentage of the distance to determine control point positions
-				int midX = (line->startPoint.X + line->endPoint.X) / 2;
-				int midY = (line->startPoint.Y + line->endPoint.Y) / 2;
-
-				if (line->startPoint != line->endPoint) {
-					line->DrawLineCurve(g, midX, midY, Color::Aquamarine, 2);
-				}
-				if (line->startPoint == line->endPoint) {
-					line->LoopLine(g, line->startPoint.X, line->startPoint.Y);
-				}
-			}
 		}
 		//generate button
 		private: System::Void generatebtn_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -1031,6 +1032,8 @@ namespace ISO {
 				graph1Lines->Clear();
 				graph2Dots->Clear();
 				graph2Lines->Clear();
+				Point controlPoints1 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
+				Point controlPoints2 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);;
 
 				// Get the number of vertices from the TextBox control
 				int vertexCount;
@@ -1040,10 +1043,10 @@ namespace ISO {
 					int maxX = isognrt1->Width - dotSpacing;
 					int maxY = isognrt1->Height - dotSpacing;
 
-					// Create the first graph
 					// Get the adjacency matrix for the first graph
 					array<array<int>^>^ adjacencyMatrix1 = graph->GetAdjacencyMatrix();
 					array<array<int>^>^ linecount = graph->GetLineCount();
+
 					// Create dots for the first graph
 					for (int i = 0; i < vertexCount; i++) {
 						int x, y;
@@ -1067,31 +1070,52 @@ namespace ISO {
 						permutation1[j] = temp;
 					}
 
-					// Create lines for the first graph based on the permuted indices and adjacency matrix
+					// straight line 1
 					for (int i = 0; i < vertexCount; i++) {
 						for (int j = 0; j < vertexCount; j++) {
 							if (adjacencyMatrix1[permutation1[i]][permutation1[j]] == 1) {
 								Point p1 = graph1Dots[i];
 								Point p2 = graph1Dots[j];
+								if (i != j)
+								graph1Lines->Add(gcnew Line(p1, p2, false, controlPoint1, controlPoint2));
+							}
+						}
+					}
+					//curve lines 1
+					for (int i = 0; i < vertexCount; i++) {
+						for (int j = i + 1; j < vertexCount; j++) {
+							Point p1 = graph1Dots[i];
+							Point p2 = graph1Dots[j];
 
-									graph1Lines->Add(gcnew Line(p1, p2, false, controlPoint1, controlPoint2));
-
-								if (i == j) {
-									int midX = (startPoint.X + endPoint.X) / 2;
-									int midY = (startPoint.Y + endPoint.Y) / 2;
-									controlPointloops1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
-									controlPointloops2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
-
-									graph1Lines->Add(gcnew Line(p1, p2, false, controlPointloop1, controlPointloop2));
-								}
-								if(linecount[i][j] > 1 && linecount[j][i] > 1)
-								{
-									graph1Lines->Add(gcnew Line(p1, p2, true, controlPoint1, controlPoint2));
+							if (linecount[permutation1[i]][permutation1[j]] > 1) {
+								for (int k = 0; k < linecount[permutation1[i]][permutation1[j]] - 1; k++) {
+									graph1Lines->Add(gcnew Line(p1, p2, true, controlPoints1, controlPoints2));
+									controlPoints1.X += 7;
+									controlPoints2.Y += 9;
 								}
 							}
 						}
 					}
+					//loop line 1
+					for (int i = 0; i < vertexCount; i++) {
+						for (int j = 0; j < vertexCount; j++) {
+							Point p1 = graph1Dots[i];
+							Point p2 = graph1Dots[j];
+							int midX = (p1.X + p2.X) / 2;
+							int midY = (p1.Y + p2.Y) / 2;
+							controlPointloops1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
+							controlPointloops2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
+							if (i == j) {
+								for (int k = 0; k < linecount[permutation1[i]][permutation1[j]]; k += 2) {
+									graph1Lines->Add(gcnew Line(p1, p2, false, controlPointloops1, controlPointloops2));
+									controlPointloops1.X -= 3;
+									controlPointloops2.Y -= 12;
 
+								}
+							}
+						}
+					}
+					//----------------------------------------------------------------------------------------------------
 					// Create dots for the second graph
 					for (int i = 0; i < vertexCount; i++) {
 						int x, y;
@@ -1115,30 +1139,51 @@ namespace ISO {
 						permutation[j] = temp;
 					}
 
-					// Create lines for the second graph based on the permuted indices and adjacency matrix
+					//straight line 2
 					for (int i = 0; i < vertexCount; i++) {
 						for (int j = 0; j < vertexCount; j++) {
 							if (adjacencyMatrix1[permutation[i]][permutation[j]] == 1) {
 								Point p1 = graph2Dots[i];
 								Point p2 = graph2Dots[j];
+								if(i != j)
 								graph2Lines->Add(gcnew Line(p1, p2, false, controlPoint1, controlPoint2));
-
-								if (i == j) {
-									int midX = (startPoint.X + endPoint.X) / 2;
-									int midY = (startPoint.Y + endPoint.Y) / 2;
-									controlPointloops1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
-									controlPointloops2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
-
-									graph2Lines->Add(gcnew Line(p1, p2, false, controlPointloops1, controlPointloops2));
-								}
-								if (j < linecount[startDotIndex][endDotIndex] && j < linecount[endDotIndex][startDotIndex])
-								{
-									graph2Lines->Add(gcnew Line(p1, p2, true, controlPoint1, controlPoint2));
+							}
+						}
+					}
+					//curve lines 2
+					for (int i = 0; i < vertexCount; i++) {
+						for (int j = i + 0; j < vertexCount; j++) {
+							Point p1 = graph2Dots[i];
+							Point p2 = graph2Dots[j];
+				
+							if (linecount[permutation[i]][permutation[j]] > 1 && permutation[i] != permutation[j]) {
+								for (int k = 0; k < linecount[permutation[i]][permutation[j]] - 1; k++) {
+									graph2Lines->Add(gcnew Line(p1, p2, true, controlPoints1, controlPoints2));
+									controlPoints1.X += 7;
+									controlPoints2.Y += 9;
 								}
 							}
 						}
 					}
+					//loop line 2
+					for (int i = 0; i < vertexCount; i++) {
+						for (int j = 0; j < vertexCount; j++) {
+							Point p1 = graph2Dots[i];
+							Point p2 = graph2Dots[j];
+							int midX = (p1.X + p2.X) / 2;
+							int midY = (p1.Y + p2.Y) / 2;
+							controlPointloops1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
+							controlPointloops2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
+							if (i == j) {
+								for (int k = 0; k < linecount[permutation[i]][permutation[j]]; k+=2) {
+									graph2Lines->Add(gcnew Line(p1, p2, false, controlPointloops1, controlPointloops2));
+									controlPointloops1.X -= 3;
+									controlPointloops2.Y -= 12;
 
+								}
+							}
+						}
+					}
 					// Redraw the PictureBox controls
 					isognrt1->Invalidate();
 					isognrt2->Invalidate();
@@ -1197,6 +1242,7 @@ namespace ISO {
 			int midY = (startPoint.Y + endPoint.Y) / 2;
 			Point controlPoint1 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
 			Point controlPoint2 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
+			dotDegrees->Clear();
 		}
 		//Undo the recent dot 
 		private: System::Void undobtn_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -1222,13 +1268,17 @@ namespace ISO {
 						previewLine = gcnew Line();
 						lines->RemoveAt(lines->Count - 1);	
 						PBdraw->Invalidate();
-						graph->UndoLine();
-						showDot = true;
-						showline = true;
-						if (linecount[startDotIndex][endDotIndex] < 2 && linecount[endDotIndex][startDotIndex] < 2)
+						if (linecount[startDotIndex][endDotIndex] == 1 && linecount[endDotIndex][startDotIndex] == 1)
 						{
 							graph->Undo();
 						}
+						graph->UndoLine();
+						if (startDotIndex == endDotIndex && linecount[startDotIndex][endDotIndex] == 0)
+						{
+							graph->Undo();
+						}
+						showDot = true;
+						showline = true;
 					}
 				}
 				objects->RemoveAt(objects->Count - 1); // Update the objects collection

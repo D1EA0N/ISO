@@ -26,6 +26,7 @@ namespace Graphs {
             }
         };
         Stack<Edge^>^ operationHistory;
+        Stack<Edge^>^ lineHistory;
     public:
 
         Graph(int vertices)
@@ -34,6 +35,7 @@ namespace Graphs {
             InitializeAdjacencyMatrix();
             InitializeLineCount();
             operationHistory = gcnew Stack<Edge^>();
+            lineHistory = gcnew Stack<Edge^>();
         }
         void InitializeAdjacencyMatrix()
         {
@@ -105,6 +107,7 @@ namespace Graphs {
             lineCount[start][end] += 1;
             lineCount[end][start] += 1;
 
+            lineHistory->Push(gcnew Edge(start, end));
         }
         void Undo()
         {
@@ -113,7 +116,7 @@ namespace Graphs {
                 Edge^ lastOperation = operationHistory->Pop();
                 int start = lastOperation->start;
                 int end = lastOperation->end;
-                // Remove the edge from the adjacency matrix
+
                 adjacencyMatrix[start][end] = 0;
                 adjacencyMatrix[end][start] = 0;
             }
@@ -122,12 +125,16 @@ namespace Graphs {
         {
             if (operationHistory->Count > 0)
             {
-                Edge^ lastOperation = operationHistory->Pop();
+                Edge^ lastOperation = lineHistory->Pop();
                 int start = lastOperation->start;
                 int end = lastOperation->end;
-
-                lineCount[start][end] -= 1;
-                lineCount[end][start] -= 1;
+                if (start == end) {
+                    lineCount[start][end] -= 2;
+                }
+                else {
+                    lineCount[start][end] -= 1;
+                    lineCount[end][start] -= 1;
+                }
             }
         }
         void RemoveDisconnectedVertices()
