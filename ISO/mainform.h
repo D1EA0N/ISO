@@ -76,12 +76,12 @@ namespace ISO {
 		int clicknum = 1;
 		int dotSize = 24;
 		int dotnum;
-		String^ edgeLabel;
-		//graph-class variables
-		Graph^ graph = gcnew Graph(dotnum);
+		int DrawMode = 2;
 		int startDotIndex;
 		int endDotIndex;
 		int numLinesDrawn = 0;
+		String^ edgeLabel;
+		Graph^ graph = gcnew Graph(dotnum);
 		//Stack
 		Stack<Point>^ validDots = gcnew Stack<Point>();
 		Stack<Point>^ dotHistory = gcnew Stack<Point>();
@@ -90,8 +90,7 @@ namespace ISO {
 		Color dotFillColor = Color::DarkSlateGray;
 		Color dotOutlineColor = Color::Cyan;
 		Drawing::Font^ letterFont = gcnew System::Drawing::Font("Comic Sans MS", 8);
-		//Draw mode
-		int DrawMode = 2;
+		//Dot drawing variables
 		ref class PointAndIndex
 		{
 		public:
@@ -105,30 +104,20 @@ namespace ISO {
 			}
 		};
 		List<PointAndIndex^>^ dots = gcnew List<PointAndIndex^>();
-
+		//Undo variables
 		ref class DrawObject {
 		public:
 			int Type;  // 0 for dot, 1 for line
 		};
 		List<DrawObject^>^ objects = gcnew List<DrawObject^>();
 		DrawObject^ dotundo = gcnew DrawObject();
-
-	private: System::Windows::Forms::Panel^ panel3;
-	private: System::Windows::Forms::Panel^ panel5;
-	private: System::Windows::Forms::RichTextBox^ txtdegree;
-
-
-
-
-		   DrawObject^ lineundo = gcnew DrawObject();
-
+		DrawObject^ lineundo = gcnew DrawObject();
 		// Helper function to calculate the distance between two points
 		double Distance(Point p1, Point p2) {
 			int dx = p2.X - p1.X;
 			int dy = p2.Y - p1.Y;
 			return Math::Sqrt(dx * dx + dy * dy);
 		}
-
 		// Helper function to check for overlap with existing dots
 		bool HasOverlap(List<Point>^ dots, Point newDot) {
 			int dotSpacing = 16;
@@ -139,6 +128,7 @@ namespace ISO {
 			}
 			return false;
 		}
+		//Degree counter for drawing, graph 1, graph 2
 		void UpdateDotDegrees(int dotIndex) {
 			if (dotDegrees->ContainsKey(dotIndex)) {
 				dotDegrees[dotIndex]++;
@@ -164,6 +154,9 @@ namespace ISO {
 			}
 		}
 		//------------------------------------- 
+	private: System::Windows::Forms::Panel^ panel3;
+	private: System::Windows::Forms::Panel^ panel5;
+	private: System::Windows::Forms::RichTextBox^ txtdegree;
 	private: System::Windows::Forms::ErrorProvider^ errorValidator;
 	private: System::Windows::Forms::ToolTip^ toolTip1;
 	private: System::Windows::Forms::Button^ undobtn;
@@ -513,7 +506,6 @@ namespace ISO {
 			// 
 			this->timer_move->Enabled = true;
 			this->timer_move->Interval = 500;
-			this->timer_move->Tick += gcnew System::EventHandler(this, &mainform::timer_move_Tick);
 			// 
 			// panel2
 			// 
@@ -700,12 +692,9 @@ namespace ISO {
 #pragma endregion
 		// Loading Mainform
 		private: System::Void mainform_Load(System::Object^ sender, System::EventArgs^ e) {
-			PBdraw->Hide();
-			// Initialize the Timer control
-			timer_move = gcnew System::Windows::Forms::Timer();
-			timer_move->Start();
-			CBgrid->Hide();
-			generatebtn->Hide();
+			PBdraw->Enabled = false;
+			CBgrid->Enabled = false;
+			generatebtn->Enabled = false;
 			instructlbl->Text = "";
 			addvertexbtn->Enabled = false;
 			connectbtn->Enabled = false;
@@ -1320,6 +1309,9 @@ namespace ISO {
 			gen2Degrees->Clear();
 			txtdegree->Clear();
 			generatebtn->Enabled = true;
+			PBdraw->Enabled = false;
+			CBgrid->Enabled = false;
+			generatebtn->Enabled = false;
 		}
 		//Undo the recent dot 
 		private: System::Void undobtn_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -1465,9 +1457,9 @@ namespace ISO {
 			}
 			else {
 				isDrawing = true;
-				PBdraw->Show();
-				CBgrid->Show();
-				generatebtn->Show();
+				PBdraw->Enabled = true;
+				CBgrid->Enabled = true;
+				generatebtn->Enabled = true;
 				addvertexbtn->Enabled = true;
 				connectbtn->Enabled = true;
 			}
@@ -1550,24 +1542,6 @@ namespace ISO {
 		}
 		private: System::Void Edgetb_MouseEnter(System::Object^ sender, System::EventArgs^ e) {
 			toolTip1->SetToolTip(Edgetb, "Please enter  4 or more edge.");
-		}
-		private: System::Void timer_move_Tick(System::Object^ sender, System::EventArgs^ e) {
-			/*System::Random^ rand = gcnew System::Random();
-
-			//Get the boundaries of the form
-			int formWidth = this->ClientSize.Width;
-			int formHeight = this->ClientSize.Height;
-
-			// Generate random X and Y coordinates within the form's boundaries
-			int newX = rand->Next(0, formWidth);
-			int newY = rand->Next(0, formHeight);
-
-			// Update the position of the object
-			pictureBox1->Location = System::Drawing::Point(newX, newY);
-			*/
-			angle += 5; // Change the rotation angle as desired
-
-			Refresh();
 		}
 	};
 }
