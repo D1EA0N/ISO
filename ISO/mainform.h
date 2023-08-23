@@ -34,6 +34,8 @@ namespace ISO {
 		Line^ line;
 		//lists
 		Dictionary<int, int>^ dotDegrees = gcnew Dictionary<int, int>();
+		Dictionary<int, int>^ gen1Degrees = gcnew Dictionary<int, int>();
+		Dictionary<int, int>^ gen2Degrees = gcnew Dictionary<int, int>();
 		List<Line^>^ lines = gcnew List<Line^>();
 		List<Point>^ graph1Dots = gcnew List<Point>();  // Dots for graph 1
 		List<Point>^ graph2Dots = gcnew List<Point>();  // Dots for graph 2
@@ -113,6 +115,9 @@ namespace ISO {
 
 	private: System::Windows::Forms::Panel^ panel3;
 	private: System::Windows::Forms::Panel^ panel5;
+	private: System::Windows::Forms::RichTextBox^ txtdegree;
+
+
 
 
 		   DrawObject^ lineundo = gcnew DrawObject();
@@ -126,7 +131,7 @@ namespace ISO {
 
 		// Helper function to check for overlap with existing dots
 		bool HasOverlap(List<Point>^ dots, Point newDot) {
-			int dotSpacing = 50;
+			int dotSpacing = 16;
 			for each (Point dot in dots) {
 				if (Distance(dot, newDot) < dotSpacing) {
 					return true;
@@ -140,6 +145,22 @@ namespace ISO {
 			}
 			else {
 				dotDegrees->Add(dotIndex, 1);
+			}
+		}
+		void Gen1DotDegrees(int dotIndex) {
+			if (gen1Degrees->ContainsKey(dotIndex)) {
+				gen1Degrees[dotIndex]++;
+			}
+			else {
+				gen1Degrees->Add(dotIndex, 1);
+			}
+		}
+		void Gen2DotDegrees(int dotIndex) {
+			if (gen2Degrees->ContainsKey(dotIndex)) {
+				gen2Degrees[dotIndex]++;
+			}
+			else {
+				gen2Degrees->Add(dotIndex, 1);
 			}
 		}
 		//------------------------------------- 
@@ -233,20 +254,21 @@ namespace ISO {
 			this->generatebtn = (gcnew System::Windows::Forms::Button());
 			this->timer_move = (gcnew System::Windows::Forms::Timer(this->components));
 			this->panel2 = (gcnew System::Windows::Forms::Panel());
+			this->panel1 = (gcnew System::Windows::Forms::Panel());
 			this->panelSidemenu = (gcnew System::Windows::Forms::Panel());
 			this->adbtb = (gcnew System::Windows::Forms::Button());
 			this->isognrt2 = (gcnew System::Windows::Forms::PictureBox());
 			this->isognrt1 = (gcnew System::Windows::Forms::PictureBox());
 			this->instructlbl = (gcnew System::Windows::Forms::Label());
-			this->panel1 = (gcnew System::Windows::Forms::Panel());
 			this->errorValidator = (gcnew System::Windows::Forms::ErrorProvider(this->components));
 			this->panel3 = (gcnew System::Windows::Forms::Panel());
 			this->panel5 = (gcnew System::Windows::Forms::Panel());
+			this->txtdegree = (gcnew System::Windows::Forms::RichTextBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->PBdraw))->BeginInit();
 			this->panel2->SuspendLayout();
+			this->panel1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->isognrt2))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->isognrt1))->BeginInit();
-			this->panel1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->errorValidator))->BeginInit();
 			this->SuspendLayout();
 			// 
@@ -503,6 +525,25 @@ namespace ISO {
 			this->panel2->Size = System::Drawing::Size(1384, 109);
 			this->panel2->TabIndex = 12;
 			// 
+			// panel1
+			// 
+			this->panel1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
+				| System::Windows::Forms::AnchorStyles::Right));
+			this->panel1->BackColor = System::Drawing::Color::SaddleBrown;
+			this->panel1->Controls->Add(this->connectbtn);
+			this->panel1->Controls->Add(this->addvertexbtn);
+			this->panel1->Controls->Add(this->label1);
+			this->panel1->Controls->Add(this->Verticestb);
+			this->panel1->Controls->Add(this->Clearbtn);
+			this->panel1->Controls->Add(this->enterbtn);
+			this->panel1->Controls->Add(this->undobtn);
+			this->panel1->Controls->Add(this->Edgetb);
+			this->panel1->Controls->Add(this->label2);
+			this->panel1->Location = System::Drawing::Point(22, 12);
+			this->panel1->Name = L"panel1";
+			this->panel1->Size = System::Drawing::Size(1340, 84);
+			this->panel1->TabIndex = 15;
+			// 
 			// panelSidemenu
 			// 
 			this->panelSidemenu->AutoScroll = true;
@@ -557,7 +598,7 @@ namespace ISO {
 			this->isognrt1->BackColor = System::Drawing::Color::DarkSlateGray;
 			this->isognrt1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->isognrt1->Cursor = System::Windows::Forms::Cursors::Cross;
-			this->isognrt1->Location = System::Drawing::Point(602, 143);
+			this->isognrt1->Location = System::Drawing::Point(626, 143);
 			this->isognrt1->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->isognrt1->Name = L"isognrt1";
 			this->isognrt1->Size = System::Drawing::Size(352, 302);
@@ -578,25 +619,6 @@ namespace ISO {
 			this->instructlbl->TabIndex = 14;
 			this->instructlbl->Text = L"4";
 			this->instructlbl->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
-			// 
-			// panel1
-			// 
-			this->panel1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
-				| System::Windows::Forms::AnchorStyles::Right));
-			this->panel1->BackColor = System::Drawing::Color::SaddleBrown;
-			this->panel1->Controls->Add(this->connectbtn);
-			this->panel1->Controls->Add(this->addvertexbtn);
-			this->panel1->Controls->Add(this->label1);
-			this->panel1->Controls->Add(this->Verticestb);
-			this->panel1->Controls->Add(this->Clearbtn);
-			this->panel1->Controls->Add(this->enterbtn);
-			this->panel1->Controls->Add(this->undobtn);
-			this->panel1->Controls->Add(this->Edgetb);
-			this->panel1->Controls->Add(this->label2);
-			this->panel1->Location = System::Drawing::Point(22, 12);
-			this->panel1->Name = L"panel1";
-			this->panel1->Size = System::Drawing::Size(1340, 84);
-			this->panel1->TabIndex = 15;
 			// 
 			// errorValidator
 			// 
@@ -622,6 +644,18 @@ namespace ISO {
 			this->panel5->Size = System::Drawing::Size(1340, 25);
 			this->panel5->TabIndex = 17;
 			// 
+			// txtdegree
+			// 
+			this->txtdegree->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
+			this->txtdegree->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+			this->txtdegree->Cursor = System::Windows::Forms::Cursors::Hand;
+			this->txtdegree->Location = System::Drawing::Point(626, 452);
+			this->txtdegree->Name = L"txtdegree";
+			this->txtdegree->ReadOnly = true;
+			this->txtdegree->Size = System::Drawing::Size(352, 96);
+			this->txtdegree->TabIndex = 18;
+			this->txtdegree->Text = L"";
+			// 
 			// mainform
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -631,6 +665,7 @@ namespace ISO {
 			this->BackColor = System::Drawing::Color::DarkGray;
 			this->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
 			this->ClientSize = System::Drawing::Size(1384, 611);
+			this->Controls->Add(this->txtdegree);
 			this->Controls->Add(this->panel5);
 			this->Controls->Add(this->panel3);
 			this->Controls->Add(this->CBgrid);
@@ -643,20 +678,20 @@ namespace ISO {
 			this->Controls->Add(this->isognrt2);
 			this->Controls->Add(this->PBdraw);
 			this->DoubleBuffered = true;
+			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
 			this->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->Name = L"mainform";
 			this->SizeGripStyle = System::Windows::Forms::SizeGripStyle::Hide;
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
-			this->WindowState = System::Windows::Forms::FormWindowState::Maximized;
 			this->Load += gcnew System::EventHandler(this, &mainform::mainform_Load);
 			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &mainform::mainform_KeyDown);
 			this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &mainform::mainform_KeyUp);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->PBdraw))->EndInit();
 			this->panel2->ResumeLayout(false);
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->isognrt2))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->isognrt1))->EndInit();
 			this->panel1->ResumeLayout(false);
 			this->panel1->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->isognrt2))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->isognrt1))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->errorValidator))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
@@ -855,19 +890,6 @@ namespace ISO {
 				lineString += "\n";
 			}
 			MessageBox::Show(lineString, "Line Count", MessageBoxButtons::OK, MessageBoxIcon::Information);
-
-			// Display the adjacency matrix in a message box
-			String^ degreesText = "Vertices' degrees:\n";
-			for each (PointAndIndex ^ dot in dots) {
-				int vertexIndex = dot->index;	
-				if (dotDegrees->ContainsKey(vertexIndex)) {
-					degreesText += "Vertex " + vertexIndex + ": " + dotDegrees[vertexIndex] + "\n";
-				}
-				else {
-					degreesText += "Vertex " + vertexIndex + ": " + 0 + "\n";
-				}
-			}
-			MessageBox::Show(degreesText);
 		}
 
 		//Preview Line
@@ -1035,9 +1057,9 @@ namespace ISO {
 				Point controlPoints1 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
 				Point controlPoints2 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);;
 
-				// Get the number of vertices from the TextBox control
 				int vertexCount;
 				if (Int32::TryParse(Verticestb->Text, vertexCount)) {
+
 					// Generate random positions for the dots
 					int dotSpacing = 50;
 					int maxX = isognrt1->Width - dotSpacing;
@@ -1069,53 +1091,6 @@ namespace ISO {
 						permutation1[i] = permutation1[j];
 						permutation1[j] = temp;
 					}
-
-					// straight line 1
-					for (int i = 0; i < vertexCount; i++) {
-						for (int j = 0; j < vertexCount; j++) {
-							if (adjacencyMatrix1[permutation1[i]][permutation1[j]] == 1) {
-								Point p1 = graph1Dots[i];
-								Point p2 = graph1Dots[j];
-								if (i != j)
-								graph1Lines->Add(gcnew Line(p1, p2, false, controlPoint1, controlPoint2));
-							}
-						}
-					}
-					//curve lines 1
-					for (int i = 0; i < vertexCount; i++) {
-						for (int j = i + 1; j < vertexCount; j++) {
-							Point p1 = graph1Dots[i];
-							Point p2 = graph1Dots[j];
-
-							if (linecount[permutation1[i]][permutation1[j]] > 1) {
-								for (int k = 0; k < linecount[permutation1[i]][permutation1[j]] - 1; k++) {
-									graph1Lines->Add(gcnew Line(p1, p2, true, controlPoints1, controlPoints2));
-									controlPoints1.X += 7;
-									controlPoints2.Y += 9;
-								}
-							}
-						}
-					}
-					//loop line 1
-					for (int i = 0; i < vertexCount; i++) {
-						for (int j = 0; j < vertexCount; j++) {
-							Point p1 = graph1Dots[i];
-							Point p2 = graph1Dots[j];
-							int midX = (p1.X + p2.X) / 2;
-							int midY = (p1.Y + p2.Y) / 2;
-							controlPointloops1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
-							controlPointloops2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
-							if (i == j) {
-								for (int k = 0; k < linecount[permutation1[i]][permutation1[j]]; k += 2) {
-									graph1Lines->Add(gcnew Line(p1, p2, false, controlPointloops1, controlPointloops2));
-									controlPointloops1.X -= 3;
-									controlPointloops2.Y -= 12;
-
-								}
-							}
-						}
-					}
-					//----------------------------------------------------------------------------------------------------
 					// Create dots for the second graph
 					for (int i = 0; i < vertexCount; i++) {
 						int x, y;
@@ -1126,7 +1101,7 @@ namespace ISO {
 
 						graph2Dots->Add(Point(x, y));
 					}
-
+					
 					// Generate a random permutation of indices
 					array<int>^ permutation = gcnew array<int>(vertexCount);
 					for (int i = 0; i < vertexCount; i++) {
@@ -1139,28 +1114,90 @@ namespace ISO {
 						permutation[j] = temp;
 					}
 
-					//straight line 2
+					// straight line 1
 					for (int i = 0; i < vertexCount; i++) {
 						for (int j = 0; j < vertexCount; j++) {
+							Point p1 = graph1Dots[i];
+							Point p2 = graph1Dots[j];
+							if (adjacencyMatrix1[permutation1[i]][permutation1[j]] == 1) {
+								if (i != j) {
+									graph1Lines->Add(gcnew Line(p1, p2, false, controlPoint1, controlPoint2));
+									Gen1DotDegrees(permutation1[i]);
+								}
+							}
+						}
+					}
+					// straight line 2
+					for (int i = 0; i < vertexCount; i++) {
+						for (int j = 0; j < vertexCount; j++) {
+							Point p1 = graph2Dots[i];
+							Point p2 = graph2Dots[j];
 							if (adjacencyMatrix1[permutation[i]][permutation[j]] == 1) {
-								Point p1 = graph2Dots[i];
-								Point p2 = graph2Dots[j];
-								if(i != j)
-								graph2Lines->Add(gcnew Line(p1, p2, false, controlPoint1, controlPoint2));
+								if (i != j) {
+									graph2Lines->Add(gcnew Line(p1, p2, false, controlPoint1, controlPoint2));
+									Gen2DotDegrees(permutation[i]);
+								}
+							}
+						}
+					}
+					//curve lines 1
+					for (int i = 0; i < vertexCount; i++) {
+						for (int j = i + 1; j < vertexCount; j++) {
+							Point p1 = graph1Dots[i];
+							Point p2 = graph1Dots[j];
+							if (linecount[permutation1[i]][permutation1[j]] > 1) {
+								for (int k = 0; k < linecount[permutation1[i]][permutation1[j]] - 1; k++) {
+									graph1Lines->Add(gcnew Line(p1, p2, true, controlPoints1, controlPoints2));
+									controlPoints1.X += 7;
+									controlPoints2.Y += 9;
+								}
+							}
+						}
+					}
+					for (int i = 0; i < vertexCount; i++) {
+						for (int j = 0; j < vertexCount; j++) {
+							if (linecount[permutation1[i]][permutation1[j]] > 1 && i != j) {
+								Gen1DotDegrees(permutation1[i]);
 							}
 						}
 					}
 					//curve lines 2
 					for (int i = 0; i < vertexCount; i++) {
-						for (int j = i + 0; j < vertexCount; j++) {
+						for (int j = i + 1; j < vertexCount; j++) {
 							Point p1 = graph2Dots[i];
 							Point p2 = graph2Dots[j];
-				
-							if (linecount[permutation[i]][permutation[j]] > 1 && permutation[i] != permutation[j]) {
+							if (linecount[permutation[i]][permutation[j]] > 1) {
 								for (int k = 0; k < linecount[permutation[i]][permutation[j]] - 1; k++) {
 									graph2Lines->Add(gcnew Line(p1, p2, true, controlPoints1, controlPoints2));
 									controlPoints1.X += 7;
 									controlPoints2.Y += 9;
+								}
+							}
+						}
+					}
+					for (int i = 0; i < vertexCount; i++) {
+						for (int j = 0; j < vertexCount; j++) {
+							if (linecount[permutation[i]][permutation[j]] > 1 && i != j) {
+								Gen2DotDegrees(permutation[i]);
+							}
+						}
+					}
+					//loop line 1 
+					for (int i = 0; i < vertexCount; i++) {
+						for (int j = 0; j < vertexCount; j++) {
+							Point p1 = graph1Dots[i];
+							Point p2 = graph1Dots[j];
+							int midX = (p1.X + p2.X) / 2;
+							int midY = (p1.Y + p2.Y) / 2;
+							controlPointloops1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
+							controlPointloops2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
+							if (i == j) {
+								for (int k = 0; k < linecount[permutation1[i]][permutation1[j]]; k += 2) {
+									graph1Lines->Add(gcnew Line(p1, p2, false, controlPointloops1, controlPointloops2));
+									Gen1DotDegrees(permutation1[i]);
+									Gen1DotDegrees(permutation1[i]);
+									controlPointloops1.X -= 3;
+									controlPointloops2.Y -= 12;
 								}
 							}
 						}
@@ -1175,8 +1212,10 @@ namespace ISO {
 							controlPointloops1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
 							controlPointloops2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
 							if (i == j) {
-								for (int k = 0; k < linecount[permutation[i]][permutation[j]]; k+=2) {
+								for (int k = 0; k < linecount[permutation[i]][permutation[j]]; k += 2) {
 									graph2Lines->Add(gcnew Line(p1, p2, false, controlPointloops1, controlPointloops2));
+									Gen2DotDegrees(permutation[i]);
+									Gen2DotDegrees(permutation[i]);
 									controlPointloops1.X -= 3;
 									controlPointloops2.Y -= 12;
 
@@ -1184,15 +1223,49 @@ namespace ISO {
 							}
 						}
 					}
+
 					// Redraw the PictureBox controls
 					isognrt1->Invalidate();
 					isognrt2->Invalidate();
 
 					undobtn->Enabled = false;
+					generatebtn->Enabled = false;
+				 
+					// Diplay the adjacency matrix in a message box
+					txtdegree->Clear();
+					txtdegree->Text += "User's Drawing:\n";
+					for each (PointAndIndex ^ dot in dots) {
+						int vertexIndex = dot->index;
+						if (dotDegrees->ContainsKey(vertexIndex)) {
+							txtdegree->Text += "Vertex " + vertexIndex + ": " + dotDegrees[vertexIndex] + "\n";
+						}
+						else {
+							txtdegree->Text += "Vertex " + vertexIndex + ": " + 0 + "\n";
+						}
+					}
+					txtdegree->Text += "First Graph:\n";
+					for (int i = 0; i < vertexCount; i++) {
+						if (gen1Degrees->ContainsKey(permutation1[i])) {
+							txtdegree->Text += "Vertex " + (i + 1) + ": " + gen1Degrees[permutation1[i]] + "\n";
+						}
+						else {
+							txtdegree->Text += "Vertex " + (i + 1) + ": " + 0 + "\n";
+						}
+					}
+					txtdegree->Text += "Second Graph:\n";
+					for (int i = 0; i < vertexCount; i++) {
+						if (gen2Degrees->ContainsKey(permutation[i])) {
+							txtdegree->Text += "Vertex " + (i + 1) + ": " + gen2Degrees[permutation[i]] + "\n";
+						}
+						else {
+							txtdegree->Text += "Vertex " + (i + 1) + ": " + 0 + "\n";
+						}
+					}
 				}
 			}
-			else
+			else {
 				MessageBox::Show("Complete the drawing first", "ERROR", MessageBoxButtons::OK, MessageBoxIcon::Exclamation);
+			}
 		}
 		// Clear Button 
 		private: System::Void Clearbtn_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -1243,6 +1316,10 @@ namespace ISO {
 			Point controlPoint1 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
 			Point controlPoint2 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
 			dotDegrees->Clear();
+			gen1Degrees->Clear();
+			gen2Degrees->Clear();
+			txtdegree->Clear();
+			generatebtn->Enabled = true;
 		}
 		//Undo the recent dot 
 		private: System::Void undobtn_Click(System::Object^ sender, System::EventArgs^ e) {
