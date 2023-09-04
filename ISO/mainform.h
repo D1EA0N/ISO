@@ -46,13 +46,13 @@ namespace ISO {
 		//Points
 		Point startPoint = Point();
 		Point endPoint = Point();
-		Point controlPointloop1;
-		Point controlPointloop2;
 		Point controlPointloops1;
 		Point controlPointloops2;
+		Point Pointloop1;
+		Point Pointloop2;
 		// Calculate the control points to create the letter "C" shaped curve
-		int controlPointOffsetY = 15; // Adjust this value to control the curve's highest point
-		int controlPointOffsetX = 15; // Adjust this value to control the curve's width
+		int controlPointOffsetY = 15; 
+		int controlPointOffsetX = 15; 
 		int midX = (startPoint.X + endPoint.X) / 2;
 		int midY = (startPoint.Y + endPoint.Y) / 2;
 		Point controlPoint1 = Point(midX + controlPointOffsetX + 200, midY + controlPointOffsetY);
@@ -71,6 +71,7 @@ namespace ISO {
 		bool ctrlKeyPressed = false;
 		bool zKeyPressed = false;
 		bool BackKeyPressed = false;
+		bool temp = true;
 		int vertcount;
 		int edgecount;
 		int clicknum = 1;
@@ -671,6 +672,7 @@ namespace ISO {
 			this->Controls->Add(this->PBdraw);
 			this->DoubleBuffered = true;
 			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->Margin = System::Windows::Forms::Padding(4, 3, 4, 3);
 			this->Name = L"mainform";
 			this->SizeGripStyle = System::Windows::Forms::SizeGripStyle::Hide;
@@ -735,6 +737,7 @@ namespace ISO {
 				completedot = true;
 			}
 		}
+	
 		private: System::Void PBdraw_MouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
 			Point currentPoint = e->Location;
 			int dotsradius = 16;
@@ -749,7 +752,7 @@ namespace ISO {
 						int cellY = dot->position.Y / gridSize;
 						int dotX = cellX * gridSize + gridSize / 2 - dotSize / 2;
 						int dotY = cellY * gridSize + gridSize / 2 - dotSize / 2;
-
+						
 						if (e->X >= dot->position.X - dotsradius && e->X <= dot->position.X + dotsradius && e->Y >= dot->position.Y - dotsradius && e->Y <= dot->position.Y + dotsradius) {
 							clickedOnDot = true;
 							//toolTip1->Show(dotNumber.ToString(), PBdraw, e->Location);  // Replace 'PBdraw' with the actual PictureBox control name
@@ -759,7 +762,7 @@ namespace ISO {
 								switch (clicknum)
 								{
 								case 1:
-									startPoint = Point(dotX + dotSize / 2, dotY + dotSize / 2); // Use dot center as start point
+									startPoint = Point(dotX + dotSize / 2, dotY + dotSize / 2); 
 									startDotIndex = dot->index - 1;
 									UpdateDotDegrees(dot->index);
 									clicknum++;
@@ -771,12 +774,13 @@ namespace ISO {
 									endDotIndex = dot->index - 1;
 									lineundo->Type = 1;
 									int deltaY = 10; // Adjust this value to increase the arc height
+								
 									if (adjacencyMatrix1[startDotIndex][endDotIndex] == 1 && adjacencyMatrix1[endDotIndex][startDotIndex] == 1)
 									{
 										if (startDotIndex == endDotIndex) {
-											controlPointloop1.X -= 3;
-											controlPointloop2.Y -= 12;
-											lines->Add(gcnew Line(startPoint, endPoint, false, controlPointloop1, controlPointloop2));
+											Pointloop1.X -= 3;
+											Pointloop2.Y -= 12;
+											lines->Add(gcnew Line(startPoint, endPoint, false, Pointloop1, Pointloop2));
 										}
 										else {
 											lines->Add(gcnew Line(startPoint, endPoint, true, controlPoint1, controlPoint2));
@@ -788,10 +792,10 @@ namespace ISO {
 										if (startDotIndex == endDotIndex) {
 											int midX = (startPoint.X + endPoint.X) / 2;
 											int midY = (startPoint.Y + endPoint.Y) / 2;
-											controlPointloop1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
-											controlPointloop2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
+											Pointloop1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
+											Pointloop2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
 
-											lines->Add(gcnew Line(startPoint, endPoint, false, controlPointloop1, controlPointloop2));
+											lines->Add(gcnew Line(startPoint, endPoint, false, Pointloop1, Pointloop2));
 										}
 										else {
 											lines->Add(gcnew Line(startPoint, endPoint, false, controlPoint1, controlPoint2));
@@ -1178,15 +1182,15 @@ namespace ISO {
 							Point p2 = graph1Dots[j];
 							int midX = (p1.X + p2.X) / 2;
 							int midY = (p1.Y + p2.Y) / 2;
-							controlPointloops1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
-							controlPointloops2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
+							controlPointloops1 = Point(midX - 30, midY - 30); 
+							controlPointloops2 = Point(midX + 30, midY - 30); 
 							if (i == j) {
 								for (int k = 0; k < linecount[permutation1[i]][permutation1[j]]; k += 2) {
 									graph1Lines->Add(gcnew Line(p1, p2, false, controlPointloops1, controlPointloops2));
 									Gen1DotDegrees(permutation1[i]);
 									Gen1DotDegrees(permutation1[i]);
-									controlPointloops1.X -= 3;
-									controlPointloops2.Y -= 12;
+									controlPointloops1.X -= 8;
+									controlPointloops2.Y -= 20;
 								}
 							}
 						}
@@ -1198,15 +1202,15 @@ namespace ISO {
 							Point p2 = graph2Dots[j];
 							int midX = (p1.X + p2.X) / 2;
 							int midY = (p1.Y + p2.Y) / 2;
-							controlPointloops1 = Point(midX - 50, midY - 50); // Adjust these values to control the curve's shape
-							controlPointloops2 = Point(midX + 50, midY - 50); // Adjust these values to control the curve's shape
+							controlPointloops1 = Point(midX - 30, midY - 30);
+							controlPointloops2 = Point(midX + 30, midY - 30);
 							if (i == j) {
 								for (int k = 0; k < linecount[permutation[i]][permutation[j]]; k += 2) {
 									graph2Lines->Add(gcnew Line(p1, p2, false, controlPointloops1, controlPointloops2));
 									Gen2DotDegrees(permutation[i]);
 									Gen2DotDegrees(permutation[i]);
-									controlPointloops1.X -= 3;
-									controlPointloops2.Y -= 12;
+									controlPointloops1.X -= 8;
+									controlPointloops2.Y -= 20;
 
 								}
 							}
@@ -1229,7 +1233,8 @@ namespace ISO {
 							txtdegree->Text += "Vertex " + vertexIndex + ": " + dotDegrees[vertexIndex] + "\n";
 						}
 						else {
-							txtdegree->Text += "Vertex " + vertexIndex + ": " + 0 + "\n";
+							dotDegrees[vertexIndex] = 0;
+							txtdegree->Text += "Vertex " + vertexIndex + ": " + dotDegrees[vertexIndex] + "\n";
 						}
 					}
 					txtdegree->Text += "First Graph:\n";
@@ -1238,7 +1243,8 @@ namespace ISO {
 							txtdegree->Text += "Vertex " + (i + 1) + ": " + gen1Degrees[permutation1[i]] + "\n";
 						}
 						else {
-							txtdegree->Text += "Vertex " + (i + 1) + ": " + 0 + "\n";
+							gen1Degrees[permutation1[i]] = 0;
+							txtdegree->Text += "Vertex " + (i + 1) + ": " + gen1Degrees[permutation1[i]] + "\n";
 						}
 					}
 					txtdegree->Text += "Second Graph:\n";
@@ -1247,7 +1253,8 @@ namespace ISO {
 							txtdegree->Text += "Vertex " + (i + 1) + ": " + gen2Degrees[permutation[i]] + "\n";
 						}
 						else {
-							txtdegree->Text += "Vertex " + (i + 1) + ": " + 0 + "\n";
+							gen2Degrees[permutation[i]] = 0;
+							txtdegree->Text += "Vertex " + (i + 1) + ": " + gen2Degrees[permutation[i]] + "\n";
 						}
 					}
 				}
@@ -1312,6 +1319,7 @@ namespace ISO {
 			PBdraw->Enabled = false;
 			CBgrid->Enabled = false;
 			generatebtn->Enabled = false;
+			temp = true;
 		}
 		//Undo the recent dot 
 		private: System::Void undobtn_Click(System::Object^ sender, System::EventArgs^ e) {

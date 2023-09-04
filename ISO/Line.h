@@ -13,15 +13,16 @@ namespace Lines {
     public:
         Point startPoint;
         Point endPoint;
-        Point controlPoints1; // New member variable for the first control point
-        Point controlPoints2; // New member variable for the second control point
-        Point controlPoint1; // New member variable for the first control point
-        Point controlPoint2; // New member variable for the second control point
+        Point controlPoints1;
+        Point controlPoints2;
+        Point controlPoint1; 
+        Point controlPoint2; 
         Color color;
         float thickness;
         bool IsCurve;
 
     public:
+        
         Line(Point start, Point end, bool curve, Point cp1, Point cp2)
             :startPoint(start), endPoint(end), IsCurve(curve), controlPoints1(cp1), controlPoints2(cp2)
         {
