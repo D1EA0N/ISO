@@ -112,7 +112,9 @@ namespace ISO {
 		};
 		List<DrawObject^>^ objects = gcnew List<DrawObject^>();
 		DrawObject^ dotundo = gcnew DrawObject();
-		DrawObject^ lineundo = gcnew DrawObject();
+	private: System::Windows::Forms::RichTextBox^ txtdegree2;
+	private: System::Windows::Forms::RichTextBox^ txtdegree1;
+		   DrawObject^ lineundo = gcnew DrawObject();
 		// Helper function to calculate the distance between two points
 		double Distance(Point p1, Point p2) {
 			int dx = p2.X - p1.X;
@@ -258,6 +260,8 @@ namespace ISO {
 			this->panel3 = (gcnew System::Windows::Forms::Panel());
 			this->panel5 = (gcnew System::Windows::Forms::Panel());
 			this->txtdegree = (gcnew System::Windows::Forms::RichTextBox());
+			this->txtdegree1 = (gcnew System::Windows::Forms::RichTextBox());
+			this->txtdegree2 = (gcnew System::Windows::Forms::RichTextBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->PBdraw))->BeginInit();
 			this->panel2->SuspendLayout();
 			this->panel1->SuspendLayout();
@@ -639,15 +643,42 @@ namespace ISO {
 			// 
 			// txtdegree
 			// 
-			this->txtdegree->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
+			this->txtdegree->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
+				| System::Windows::Forms::AnchorStyles::Right));
 			this->txtdegree->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->txtdegree->Cursor = System::Windows::Forms::Cursors::Hand;
 			this->txtdegree->Location = System::Drawing::Point(626, 452);
 			this->txtdegree->Name = L"txtdegree";
 			this->txtdegree->ReadOnly = true;
-			this->txtdegree->Size = System::Drawing::Size(352, 96);
+			this->txtdegree->Size = System::Drawing::Size(92, 96);
 			this->txtdegree->TabIndex = 18;
 			this->txtdegree->Text = L"";
+			// 
+			// txtdegree1
+			// 
+			this->txtdegree1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
+				| System::Windows::Forms::AnchorStyles::Right));
+			this->txtdegree1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+			this->txtdegree1->Cursor = System::Windows::Forms::Cursors::Hand;
+			this->txtdegree1->Location = System::Drawing::Point(724, 452);
+			this->txtdegree1->Name = L"txtdegree1";
+			this->txtdegree1->ReadOnly = true;
+			this->txtdegree1->Size = System::Drawing::Size(92, 96);
+			this->txtdegree1->TabIndex = 18;
+			this->txtdegree1->Text = L"";
+			// 
+			// txtdegree2
+			// 
+			this->txtdegree2->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
+				| System::Windows::Forms::AnchorStyles::Right));
+			this->txtdegree2->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+			this->txtdegree2->Cursor = System::Windows::Forms::Cursors::Hand;
+			this->txtdegree2->Location = System::Drawing::Point(822, 452);
+			this->txtdegree2->Name = L"txtdegree2";
+			this->txtdegree2->ReadOnly = true;
+			this->txtdegree2->Size = System::Drawing::Size(92, 96);
+			this->txtdegree2->TabIndex = 18;
+			this->txtdegree2->Text = L"";
 			// 
 			// mainform
 			// 
@@ -658,6 +689,8 @@ namespace ISO {
 			this->BackColor = System::Drawing::Color::DarkGray;
 			this->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
 			this->ClientSize = System::Drawing::Size(1384, 611);
+			this->Controls->Add(this->txtdegree2);
+			this->Controls->Add(this->txtdegree1);
 			this->Controls->Add(this->txtdegree);
 			this->Controls->Add(this->panel5);
 			this->Controls->Add(this->panel3);
@@ -1226,6 +1259,9 @@ namespace ISO {
 				 
 					// Diplay the adjacency matrix in a message box
 					txtdegree->Clear();
+					txtdegree1->Clear();
+					txtdegree2->Clear();
+
 					txtdegree->Text += "User's Drawing:\n";
 					for each (PointAndIndex ^ dot in dots) {
 						int vertexIndex = dot->index;
@@ -1237,25 +1273,61 @@ namespace ISO {
 							txtdegree->Text += "Vertex " + vertexIndex + ": " + dotDegrees[vertexIndex] + "\n";
 						}
 					}
-					txtdegree->Text += "First Graph:\n";
+					txtdegree1->Text += "First Graph:\n";
 					for (int i = 0; i < vertexCount; i++) {
 						if (gen1Degrees->ContainsKey(permutation1[i])) {
-							txtdegree->Text += "Vertex " + (i + 1) + ": " + gen1Degrees[permutation1[i]] + "\n";
+							txtdegree1->Text += "Vertex " + (i + 1) + ": " + gen1Degrees[permutation1[i]] + "\n";
 						}
 						else {
 							gen1Degrees[permutation1[i]] = 0;
-							txtdegree->Text += "Vertex " + (i + 1) + ": " + gen1Degrees[permutation1[i]] + "\n";
+							txtdegree1->Text += "Vertex " + (i + 1) + ": " + gen1Degrees[permutation1[i]] + "\n";
 						}
 					}
-					txtdegree->Text += "Second Graph:\n";
+					txtdegree2->Text += "Second Graph:\n";
 					for (int i = 0; i < vertexCount; i++) {
 						if (gen2Degrees->ContainsKey(permutation[i])) {
-							txtdegree->Text += "Vertex " + (i + 1) + ": " + gen2Degrees[permutation[i]] + "\n";
+							txtdegree2->Text += "Vertex " + (i + 1) + ": " + gen2Degrees[permutation[i]] + "\n";
 						}
 						else {
 							gen2Degrees[permutation[i]] = 0;
-							txtdegree->Text += "Vertex " + (i + 1) + ": " + gen2Degrees[permutation[i]] + "\n";
+							txtdegree2->Text += "Vertex " + (i + 1) + ": " + gen2Degrees[permutation[i]] + "\n";
 						}
+					}
+					//Checking
+					bool isIsomorphic = false;
+					/*for each (KeyValuePair<int, int> ^ kvp in dotDegrees) {
+						int vertexIndex = kvp->Key;
+						int dotDegree = kvp->Value;
+
+						if (!gen1Degrees->ContainsKey(vertexIndex) || !gen2Degrees->ContainsKey(vertexIndex)) {
+							// If the vertex is missing in either graph, they can't be isomorphic.
+							isIsomorphic = false;
+							break;
+						}
+
+						int gen1Degree = gen1Degrees[vertexIndex];
+						int gen2Degree = gen2Degrees[vertexIndex];
+
+						if (dotDegree != gen1Degree || dotDegree != gen2Degree || gen1Degree != gen2Degree) {
+							// If the degrees don't match, the graphs aren't isomorphic.
+							isIsomorphic = false;
+							break;
+						}
+					}*/
+					for each (PointAndIndex ^ dot in dots) {
+						int vertexIndex = dot->index;
+						for (int i = 0; i < vertexCount; i++) {
+							if (dotDegrees[vertexIndex] == gen1Degrees[permutation1[i]] || dotDegrees[vertexIndex] == gen2Degrees[permutation1[i]]) {
+								isIsomorphic = true;
+								//break;
+							}
+						}
+					}
+					if (isIsomorphic == true){
+						MessageBox::Show("IT IS ISOMORPHIC!", "CHECKER", MessageBoxButtons::OK, MessageBoxIcon::Information);
+					}
+					else {
+						MessageBox::Show("IT IS NOT ISOMORPHIC!", "CHECKER", MessageBoxButtons::OK, MessageBoxIcon::Information);
 					}
 				}
 			}
@@ -1315,6 +1387,8 @@ namespace ISO {
 			gen1Degrees->Clear();
 			gen2Degrees->Clear();
 			txtdegree->Clear();
+			txtdegree1->Clear();
+			txtdegree2->Clear();
 			generatebtn->Enabled = true;
 			PBdraw->Enabled = false;
 			CBgrid->Enabled = false;
